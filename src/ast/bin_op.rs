@@ -1,0 +1,22 @@
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum BinOpKind {
+    Add,
+    Subtract,
+    Multiply,
+    Divide,
+    Modulo,
+    Equal,
+    NotEqual,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    LogicalAnd,
+    LogicalOr,
+    BitwiseAnd,
+    BitwiseOr,
+    Xor,
+    Max,
+    Min,
+    Pow,
+}

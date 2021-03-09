@@ -14,3 +14,6 @@ pub mod topo;
 pub mod block;
 pub mod codegen;
 pub mod compile;
+
+pub mod ast;
+pub mod stage;
