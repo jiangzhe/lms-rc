@@ -8,4 +8,5 @@ pub enum Type {
     Dict(Box<Type>, Box<Type>),
     Builder(BuilderKind),
     Struct(Vec<Type>),
+    Unknown,
 }

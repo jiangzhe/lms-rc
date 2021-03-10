@@ -5,6 +5,7 @@ use crate::ast::lit::LiteralKind;
 use crate::ast::bin_op::BinOpKind;
 use crate::ast::unary_op::UnaryOpKind;
 use crate::ast::iter::Iter;
+use crate::ast::param::Parameter;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Expr {
@@ -16,47 +17,49 @@ pub struct Expr {
 pub enum ExprKind {
     Literal(LiteralKind),
     // Ident(Symbol),
-    Not(Symbol),
-    Negate(Symbol),
-    Broadcast(Symbol),
+    Not(Box<Expr>),
+    Negate(Box<Expr>),
+    Broadcast(Box<Expr>),
     BinOp {
         kind: BinOpKind,
-        left: Symbol,
-        right: Symbol,
+        left: Box<Expr>,
+        right: Box<Expr>,
     },
     UnaryOp {
         kind: UnaryOpKind,
-        data: Symbol,
+        data: Box<Expr>,
     },
     Cast {
-        data: Symbol,
+        data: Box<Expr>,
         kind: ScalarKind,
     },
     GetField {
-        data: Symbol,
+        data: Box<Expr>,
         index: u32,
     },
-    Length(Symbol),
+    Length(Box<Expr>),
     Lookup {
-        data: Symbol,
-        index: Symbol,
+        data: Box<Expr>,
+        index: Box<Expr>,
     },
     If {
-        cond: Symbol,
-        on_true: Symbol,
-        on_false: Symbol,
+        cond: Box<Expr>,
+        on_true: Box<Expr>,
+        on_false: Box<Expr>,
     },
     For {
+        // todo: Vec<Iter>?
         iter: Iter,
-        builder: Symbol,
-        func: Symbol,
+        builder: Box<Expr>,
+        func: Box<Expr>,
     },
     Merge {
-        builder: Symbol,
-        value: Symbol,
+        builder: Box<Expr>,
+        value: Box<Expr>,
     },
     Lambda {
-        params: Vec<Symbol>,
-        body: Symbol,
+        params: Vec<Parameter>,
+        body: Box<Expr>,
     },
+    MakeVector(Vec<Symbol>),
 }

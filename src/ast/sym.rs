@@ -1,9 +1,7 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Symbol(u32);
+use std::rc::Rc;
 
-#[derive(Debug)]
-pub struct SymbolTable(Vec<Symbol>);
-
-impl SymbolTable {
-    
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct Symbol {
+    name: Rc<str>,
+    id: i32,
 }
