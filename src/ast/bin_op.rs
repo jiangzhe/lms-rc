@@ -1,7 +1,6 @@
-use crate::ast::expr::Expr;
-use crate::ast::scalar::ScalarKind;
-use crate::ast::ty::{Type, TypeInference};
+use super::{Expr, ScalarKind, Type, TypeInference};
 
+/// Types of binary operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BinOpKind {
     Add,
@@ -25,11 +24,22 @@ pub enum BinOpKind {
     Pow,
 }
 
+/// A binary operation on two expressions.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BinOp {
     kind: BinOpKind,
     left: Box<Expr>,
     right: Box<Expr>,
+}
+
+impl BinOp {
+    pub fn add(left: Expr, right: Expr) -> Self {
+        BinOp {
+            kind: BinOpKind::Add,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
 }
 
 impl TypeInference for BinOp {

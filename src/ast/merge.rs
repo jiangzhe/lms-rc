@@ -1,13 +1,12 @@
 use super::{Expr, Type, TypeInference};
 
-/// Get value from tuple by given index.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GetField {
-    data: Box<Expr>,
-    index: u32,
+pub struct Merge {
+    builder: Box<Expr>,
+    value: Box<Expr>,
 }
 
-impl TypeInference for GetField {
+impl TypeInference for Merge {
     fn ty(&self) -> Type {
         todo!()
     }

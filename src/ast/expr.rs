@@ -1,94 +1,48 @@
-use crate::ast::bin_op::BinOp;
-use crate::ast::cast::Cast;
-use crate::ast::get_field::GetField;
-use crate::ast::lit::Literal;
-use crate::ast::ty::{Type, TypeInference};
-use crate::ast::unary_op::UnaryOp;
+use super::*;
 use enum_dispatch::enum_dispatch;
 
+/// Expr represents an expression tree.
 #[enum_dispatch(TypeInference)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Expr {
+    /// A literal expression.
     Literal(Literal),
-    // Ident(Symbol),
-    // Not(Box<Expr>),
-    Not(Not),
-    // Negate(Box<Expr>),
-    Negate(Negate),
-    // Broadcast(Box<Expr>),
+    /// Broadcasts a scalar into a vector.
     Broadcast(Broadcast),
-    // BinOp {
-    //     kind: BinOpKind,
-    //     left: Box<Expr>,
-    //     right: Box<Expr>,
-    // },
+    /// Applies a binary operator to child expressions.
     BinOp(BinOp),
-    // UnaryOp {
-    //     kind: UnaryOpKind,
-    //     data: Box<Expr>,
-    // },
+    /// Applies a unary operator to child expressions.
     UnaryOp(UnaryOp),
-    // Cast {
-    //     data: Box<Expr>,
-    //     kind: ScalarKind,
-    // },
+    /// Cast a scalar expression to another type.
     Cast(Cast),
-    // GetField {
-    //     data: Box<Expr>,
-    //     index: u32,
-    // },
+    /// Access a tuple field at given index.
     GetField(GetField),
-    // Length(Box<Expr>),
-
-    // Lookup {
-    //     data: Box<Expr>,
-    //     index: Box<Expr>,
-    // },
-    // If {
-    //     cond: Box<Expr>,
-    //     on_true: Box<Expr>,
-    //     on_false: Box<Expr>,
-    // },
-    // For {
-    //     // todo: Vec<Iter>?
-    //     iter: Iter,
-    //     builder: Box<Expr>,
-    //     func: Box<Expr>,
-    // },
-    // Merge {
-    //     builder: Box<Expr>,
-    //     value: Box<Expr>,
-    // },
-    // Lambda {
-    //     params: Vec<Parameter>,
-    //     body: Box<Expr>,
-    // },
-    // MakeVector(Vec<Symbol>),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Not(Box<Expr>);
-
-impl TypeInference for Not {
-    fn ty(&self) -> Type {
-        self.0.ty()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Negate(Box<Expr>);
-
-impl TypeInference for Negate {
-    fn ty(&self) -> Type {
-        self.0.ty()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Broadcast(Box<Expr>);
-
-impl TypeInference for Broadcast {
-    fn ty(&self) -> Type {
-        self.0.ty()
-    }
+    /// Get the length of a vector as an u64.
+    Length(Length),
+    /// Lookup a value in Dict.
+    Lookup(Lookup),
+    /// Evaluate different branch based on condition.
+    IfThenElse(IfThenElse),
+    /// Update a builder in parallel by itearating over data.
+    For(For),
+    /// Update a builder value, returning a new builder.
+    Merge(Merge),
+    /// An expression representing a function.
+    Lambda(Lambda),
+    /// Construct a new vector.
+    NewVector(NewVector),
+    /// Construct a new dictionary.
+    NewDict(NewDict),
+    /// Construct a new appender.
+    NewAppender(NewAppender),
+    /// Construct a new merger.
+    NewMerger(NewMerger),
+    /// Construct a new dictmerger.
+    NewDictMerger(NewDictMerger),
+    /// Construct a new groupmerger.
+    NewGroupMerger(NewGroupMerger),
+    /// Construct a new vecmerger.
+    NewVecMerger(NewVecMerger),
+    /// Consume a builder and return its result
+    Eval(Eval),
 }

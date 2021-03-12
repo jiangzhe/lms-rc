@@ -1,15 +1,66 @@
 #[macro_use]
 mod macros;
-pub mod bin_op;
-pub mod builder;
-pub mod cast;
-pub mod expr;
-pub mod get_field;
-pub mod iter;
-pub mod lit;
-pub mod param;
-pub mod scalar;
-pub mod sym;
-pub mod ty;
-pub mod unary_op;
-pub mod var;
+mod bin_op;
+mod broadcast;
+mod builder;
+mod cast;
+mod dict;
+mod eval;
+mod expr;
+mod function;
+mod get_field;
+mod ite;
+mod iter;
+mod lambda;
+mod length;
+mod lit;
+mod lookup;
+mod merge;
+mod param;
+mod pfor;
+mod scalar;
+mod sym;
+mod tuple;
+mod ty;
+mod unary_op;
+mod var;
+mod vector;
+
+pub use bin_op::{BinOp, BinOpKind};
+pub use broadcast::Broadcast;
+pub use builder::{
+    AppenderKind, DictMergerKind, GroupMergerKind, MergerKind, NewAppender, NewDictMerger,
+    NewGroupMerger, NewMerger, NewVecMerger, VecMergerKind,
+};
+pub use cast::Cast;
+pub use dict::{DictKind, NewDict};
+use enum_dispatch::enum_dispatch;
+pub use eval::Eval;
+pub use expr::Expr;
+pub use function::FunctionKind;
+pub use get_field::GetField;
+pub use ite::IfThenElse;
+pub use iter::Iter;
+pub use lambda::Lambda;
+pub use length::Length;
+pub use lit::Literal;
+pub use lookup::Lookup;
+pub use merge::Merge;
+pub use param::Parameter;
+pub use pfor::For;
+pub use scalar::ScalarKind;
+pub use sym::Symbol;
+pub use tuple::TupleKind;
+pub use ty::Type;
+pub use unary_op::{UnaryOp, UnaryOpKind};
+pub use var::Var;
+pub use vector::{NewVector, VectorKind};
+
+/// Enable type inference on any expression.
+///
+/// The type inference is executed on the program staging,
+/// before the code generation and compilation.
+#[enum_dispatch]
+pub trait TypeInference {
+    fn ty(&self) -> Type;
+}

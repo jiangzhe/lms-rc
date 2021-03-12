@@ -1,13 +1,13 @@
 use super::{Expr, Type, TypeInference};
 
-/// Get value from tuple by given index.
+/// Lookup value in dictionary.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct GetField {
+pub struct Lookup {
     data: Box<Expr>,
-    index: u32,
+    index: Box<Expr>,
 }
 
-impl TypeInference for GetField {
+impl TypeInference for Lookup {
     fn ty(&self) -> Type {
         todo!()
     }

@@ -1,7 +1,6 @@
-use crate::ast::expr::Expr;
-use crate::ast::scalar::ScalarKind;
-use crate::ast::ty::{Type, TypeInference};
+use super::{Expr, ScalarKind, Type, TypeInference};
 
+/// Cast an expression to a certain type.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Cast {
     kind: ScalarKind,
