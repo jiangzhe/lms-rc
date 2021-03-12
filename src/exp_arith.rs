@@ -1,11 +1,11 @@
 //! Arithmetic operations defined on Exp<T>
+use crate::def::Def;
+use crate::def_arith::{Divides, Minus, Plus, Times};
 use crate::exp::Exp;
 use crate::exp::ExpOrDef;
-use crate::def::Def;
-use crate::def_arith::{Plus, Minus, Times, Divides};
 use std::any::Any;
-use std::ops::{Add, Sub, Mul, Div};
 use std::fmt::Debug;
+use std::ops::{Add, Div, Mul, Sub};
 
 impl<T> Add for Exp<T>
 where
@@ -161,8 +161,8 @@ impl_num_div!(u8, i8, u16, i16, u32, i32, u64, i64, usize, isize);
 
 #[cfg(test)]
 mod tests {
-    use crate::ctx::Context;
     use super::*;
+    use crate::ctx::Context;
     #[test]
     fn test_const_arith() {
         let mut ctx = Context::new();
@@ -175,7 +175,7 @@ mod tests {
         assert_eq!(Exp::Const(4), v3);
         let v4 = ctx.eval(Exp::Const(6) / Exp::Const(2));
         assert_eq!(Exp::Const(3), v4);
-    
+
         let v1 = ctx.eval(Exp::Const(1) + 2);
         assert_eq!(Exp::Const(3), v1);
         let v2 = ctx.eval(Exp::Const(2) - 1);
@@ -194,5 +194,4 @@ mod tests {
         let v4 = ctx.eval(6 / Exp::Const(2));
         assert_eq!(Exp::Const(3), v4);
     }
-
 }

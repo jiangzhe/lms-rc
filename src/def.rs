@@ -1,5 +1,5 @@
+use crate::def_arith::{Divides, Minus, Plus, Times};
 use crate::exp::Sym;
-use crate::def_arith::{Plus, Minus, Times, Divides};
 use std::any::Any;
 use std::fmt::Debug;
 
@@ -7,7 +7,6 @@ use std::fmt::Debug;
 ///
 /// This is the root trait of all definitions.
 pub trait DefEx: Debug + Any {
-
     /// as_any enables downcasting to actual type
     fn as_any(&self) -> &dyn Any;
 
@@ -37,7 +36,6 @@ impl<T: Debug> Debug for Def<T> {
 }
 
 impl<T: Debug + Clone + 'static> DefEx for Def<T> {
-
     fn as_any(&self) -> &dyn Any {
         self
     }

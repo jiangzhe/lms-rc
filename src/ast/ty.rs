@@ -1,5 +1,6 @@
-use crate::ast::scalar::ScalarKind;
 use crate::ast::builder::BuilderKind;
+use crate::ast::scalar::ScalarKind;
+use enum_dispatch::enum_dispatch;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Type {
@@ -9,4 +10,9 @@ pub enum Type {
     Builder(BuilderKind),
     Struct(Vec<Type>),
     Unknown,
+}
+
+#[enum_dispatch]
+pub trait TypeInference {
+    fn ty(&self) -> Type;
 }

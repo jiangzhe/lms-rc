@@ -1,8 +1,8 @@
-use crate::exp::{Exp, Sym};
-use crate::def::DefEx;
 use crate::block::Block;
-use std::fmt::Debug;
+use crate::def::DefEx;
+use crate::exp::{Exp, Sym};
 use std::any::Any;
+use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 pub struct IfThenElse<T> {
@@ -11,7 +11,10 @@ pub struct IfThenElse<T> {
     else_block: Block<T>,
 }
 
-impl<T> DefEx for IfThenElse<T> where T: Debug + Clone + 'static {
+impl<T> DefEx for IfThenElse<T>
+where
+    T: Debug + Clone + 'static,
+{
     fn as_any(&self) -> &dyn Any {
         self
     }

@@ -1,17 +1,16 @@
-use crate::exp::Sym;
 use crate::def::{Def, DefEx};
+use crate::exp::Sym;
 use std::any::Any;
-use std::rc::Rc;
-use std::marker::PhantomData;
 use std::fmt::Debug;
+use std::marker::PhantomData;
+use std::rc::Rc;
 
 /// Trait of statement
 ///
-/// It extends Any to allow downcast to 
+/// It extends Any to allow downcast to
 /// actual type, and define as_any() to
 /// allow unwrap as dyn Any
 pub trait StmtEx: Any + Debug {
-
     fn as_any(&self) -> &dyn Any;
 
     fn lhs(&self) -> Sym;
@@ -29,7 +28,6 @@ pub enum Stmt<T> {
 }
 
 impl<T: 'static + Clone + Debug> StmtEx for Stmt<T> {
-
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -44,9 +42,8 @@ impl<T: 'static + Clone + Debug> StmtEx for Stmt<T> {
 }
 
 impl<T: 'static + Clone + Debug> Stmt<T> {
-
     pub fn assign(sym: Sym, rhs: Def<T>) -> Self {
-        let a = Assign{
+        let a = Assign {
             sym,
             def: Rc::new(rhs),
             _marker: PhantomData,
@@ -68,14 +65,12 @@ impl<T: 'static + Clone + Debug> Stmt<T> {
 
     pub fn defines(&self, sym: Sym) -> Option<&Def<T>> {
         match self {
-            Stmt::Assign(a) if a.sym == sym => {
-                a.def.as_any().downcast_ref::<Def<T>>()
-            }
+            Stmt::Assign(a) if a.sym == sym => a.def.as_any().downcast_ref::<Def<T>>(),
             Stmt::Assign(_) => None,
         }
     }
 
-    pub fn defines_rhs(&self, rhs: &Def<T>) -> Option<&Sym> 
+    pub fn defines_rhs(&self, rhs: &Def<T>) -> Option<&Sym>
     where
         T: PartialEq,
     {
@@ -90,7 +85,6 @@ impl<T: 'static + Clone + Debug> Stmt<T> {
             }
         }
     }
-
 }
 
 #[derive(Clone)]

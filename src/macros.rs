@@ -3,7 +3,7 @@ macro_rules! impl_num_add {
     ($ty:ty) => {
         impl Add<$crate::exp::Exp<$ty>> for $ty {
             type Output = $crate::exp::ExpOrDef<$ty>;
-            
+
             fn add(self, other: $crate::exp::Exp<$ty>) -> Self::Output {
                 match other {
                     $crate::exp::Exp::Const(y) => $crate::exp::ExpOrDef::Exp($crate::exp::Exp::Const(self + y)),
@@ -13,7 +13,7 @@ macro_rules! impl_num_add {
                     }
                 }
             }
-        }        
+        }
     };
     ($($ty:ty),*) => {
         $(
@@ -27,7 +27,7 @@ macro_rules! impl_num_sub {
     ($ty:ty) => {
         impl Sub<$crate::exp::Exp<$ty>> for $ty {
             type Output = $crate::exp::ExpOrDef<$ty>;
-            
+
             fn sub(self, other: $crate::exp::Exp<$ty>) -> Self::Output {
                 match other {
                     $crate::exp::Exp::Const(y) => $crate::exp::ExpOrDef::Exp($crate::exp::Exp::Const(self - y)),
@@ -37,7 +37,7 @@ macro_rules! impl_num_sub {
                     }
                 }
             }
-        }        
+        }
     };
     ($($ty:ty),*) => {
         $(
@@ -51,7 +51,7 @@ macro_rules! impl_num_mul {
     ($ty:ty) => {
         impl Mul<$crate::exp::Exp<$ty>> for $ty {
             type Output = $crate::exp::ExpOrDef<$ty>;
-            
+
             fn mul(self, other: $crate::exp::Exp<$ty>) -> Self::Output {
                 match other {
                     $crate::exp::Exp::Const(y) => $crate::exp::ExpOrDef::Exp($crate::exp::Exp::Const(self * y)),
@@ -75,7 +75,7 @@ macro_rules! impl_num_div {
     ($ty:ty) => {
         impl Div<$crate::exp::Exp<$ty>> for $ty {
             type Output = $crate::exp::ExpOrDef<$ty>;
-            
+
             fn div(self, other: $crate::exp::Exp<$ty>) -> Self::Output {
                 match other {
                     $crate::exp::Exp::Const(y) => $crate::exp::ExpOrDef::Exp($crate::exp::Exp::Const(self / y)),
@@ -85,7 +85,7 @@ macro_rules! impl_num_div {
                     }
                 }
             }
-        }        
+        }
     };
     ($($ty:ty),*) => {
         $(

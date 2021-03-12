@@ -1,4 +1,7 @@
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+use crate::ast::expr::Expr;
+use crate::ast::ty::{Type, TypeInference};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UnaryOpKind {
     Exp,
     Log,
@@ -13,4 +16,16 @@ pub enum UnaryOpKind {
     Cosh,
     Tanh,
     Erf,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UnaryOp {
+    kind: UnaryOpKind,
+    value: Box<Expr>,
+}
+
+impl TypeInference for UnaryOp {
+    fn ty(&self) -> Type {
+        todo!()
+    }
 }

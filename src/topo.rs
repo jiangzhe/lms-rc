@@ -1,7 +1,7 @@
-use crate::stmt::{Stmt, StmtEx};
 use crate::exp::Sym;
+use crate::stmt::{Stmt, StmtEx};
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
-use std::collections::{HashSet, HashMap};
 
 pub fn build_topo(defs: &[Rc<dyn StmtEx>], result: Sym) -> Vec<Sym> {
     let lookup = build_lookup(defs);
@@ -12,8 +12,8 @@ pub fn build_topo(defs: &[Rc<dyn StmtEx>], result: Sym) -> Vec<Sym> {
 }
 
 fn build_topo_rec(
-    lookup: &HashMap<Sym, Rc<dyn StmtEx>>, 
-    processed: &mut HashSet<Sym>, 
+    lookup: &HashMap<Sym, Rc<dyn StmtEx>>,
+    processed: &mut HashSet<Sym>,
     topo: &mut Vec<Sym>,
     sym: Sym,
 ) {
@@ -80,7 +80,7 @@ mod tests {
         } else if n == 1 {
             input
         } else {
-            let v = pow(input.clone(), n-1, ctx);
+            let v = pow(input.clone(), n - 1, ctx);
             ctx.eval(input * v)
         }
     }

@@ -1,10 +1,10 @@
-use crate::def::{Def, DefEx};
-use crate::exp::{Exp, Sym, ExpOrDef};
-use crate::stmt::{Stmt, StmtEx};
 use crate::block::Block;
-use std::rc::Rc;
+use crate::def::{Def, DefEx};
+use crate::exp::{Exp, ExpOrDef, Sym};
+use crate::stmt::{Stmt, StmtEx};
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::rc::Rc;
 
 /// Context of LMS
 ///
@@ -22,14 +22,13 @@ pub struct Context {
 }
 
 impl Context {
-
     /// Create a new context.
     pub fn new() -> Self {
-        Context{
+        Context {
             sym_id: 0,
-            global_defs: vec![], 
-            local_defs: vec![], 
-            global_syms: HashMap::new(), 
+            global_defs: vec![],
+            local_defs: vec![],
+            global_syms: HashMap::new(),
         }
     }
 
@@ -38,18 +37,18 @@ impl Context {
     /// All intermediate values in the function will
     /// be registered within context and returns
     /// the expression representing final result
-    pub fn eval<T, F>(&mut self, f: F) -> Exp<T> 
+    pub fn eval<T, F>(&mut self, f: F) -> Exp<T>
     where
-        F: WithCtx<Target=Exp<T>>,
+        F: WithCtx<Target = Exp<T>>,
         T: Debug + Clone + 'static,
     {
         f.with(self)
     }
 
-    pub fn eval_if<T, TF, EF>(&mut self, cond: ExpOrDef<bool>, then_f: TF, else_f: EF) -> Exp<T> 
+    pub fn eval_if<T, TF, EF>(&mut self, cond: ExpOrDef<bool>, then_f: TF, else_f: EF) -> Exp<T>
     where
-        TF: WithCtx<Target=Exp<T>>,
-        EF: WithCtx<Target=Exp<T>>,
+        TF: WithCtx<Target = Exp<T>>,
+        EF: WithCtx<Target = Exp<T>>,
         T: Debug + Clone + 'static,
     {
         if let ExpOrDef::Exp(Exp::Const(c)) = cond {
@@ -65,7 +64,7 @@ impl Context {
     }
 
     /// dry run the given function with fresh input
-    pub fn dry_run<T, U, F>(&mut self, f: F) -> Exp<U> 
+    pub fn dry_run<T, U, F>(&mut self, f: F) -> Exp<U>
     where
         F: FnOnce(&mut Context, Exp<T>) -> ExpOrDef<U>,
         T: Debug + Clone + PartialEq + 'static,
@@ -89,7 +88,7 @@ impl Context {
     }
 
     /// Create a new symbol
-    pub fn fresh<T>(&mut self) -> Exp<T> 
+    pub fn fresh<T>(&mut self) -> Exp<T>
     where
         T: 'static + Clone + Debug,
     {
@@ -149,7 +148,7 @@ impl Context {
         stmt
     }
 
-    fn reify_sub_graph<T, B>(&mut self, b: B) -> (T, Vec<Rc<dyn StmtEx>>) 
+    fn reify_sub_graph<T, B>(&mut self, b: B) -> (T, Vec<Rc<dyn StmtEx>>)
     where
         B: FnOnce() -> T,
     {
@@ -166,7 +165,8 @@ impl Context {
 
     fn reflect_sub_graph(&mut self, ds: Vec<Rc<dyn StmtEx>>) {
         // todo: allow multiple lhs in single statement
-        let existing: Vec<_> = ds.iter()
+        let existing: Vec<_> = ds
+            .iter()
             .map(|s| s.lhs())
             .flat_map(|s| self.global_syms.get(&s))
             .collect();
@@ -178,16 +178,14 @@ impl Context {
         }
     }
 
-    fn reify_effects<T, B>(block: B, control_scope: bool) -> Block<T> 
+    fn reify_effects<T, B>(block: B, control_scope: bool) -> Block<T>
     where
         B: FnOnce() -> Block<T>,
     {
-        todo!()   
+        todo!()
     }
 
-    fn traverse_block<T>(block: Block<T>) {
-
-    }
+    fn traverse_block<T>(block: Block<T>) {}
 
     // pub fn focus_sub_graph<T>(result: Vec<Exp<T>)
 
@@ -221,7 +219,7 @@ pub trait WithCtx {
     fn with(self, ctx: &mut Context) -> Self::Target;
 }
 
-impl<T, F> WithCtx for F 
+impl<T, F> WithCtx for F
 where
     F: FnOnce(&mut Context) -> ExpOrDef<T>,
     T: Debug + Clone + PartialEq + 'static,

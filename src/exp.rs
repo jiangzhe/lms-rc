@@ -4,10 +4,10 @@ use std::fmt::Debug;
 
 /// Generic expression
 ///
-/// It contains two variants, constant and symbol. 
+/// It contains two variants, constant and symbol.
 /// Symbol is numbered with global identifier,
 /// and registered with Context. It also embeds the
-/// context inside for future comuputation. 
+/// context inside for future comuputation.
 #[derive(Clone, PartialEq)]
 pub enum Exp<T> {
     Const(T),
@@ -54,7 +54,7 @@ pub struct Sym(pub(super) usize);
 #[derive(Clone)]
 pub enum ExpOrDef<T> {
     Exp(Exp<T>),
-    Def(Def<T>)
+    Def(Def<T>),
 }
 
 impl<T: Debug + Clone + PartialEq + 'static> WithCtx for ExpOrDef<T> {

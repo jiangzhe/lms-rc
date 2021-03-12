@@ -1,5 +1,5 @@
-use crate::ast::ty::Type;
 use crate::ast::bin_op::BinOpKind;
+use crate::ast::ty::Type;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum BuilderKind {
