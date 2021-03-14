@@ -1,120 +1,242 @@
 use super::*;
+use std::marker::PhantomData;
 use std::ops::{Add, Div, Mul, Neg, Not, Sub};
 
-/// Var represents a variable of linear type in the staging program
+/// Var represents a variable of linear type in the staging program.
 ///
 /// Var is generic over its actual value.
 ///
-/// Scalar operations defined on Var<ScalarKind>
+/// Scalar operations defined on Var<ScalarType>.
 ///
-/// Builder operations defined on Var<BuilderKind>
+/// Builder operations defined on Var<AppenderType>, Var<MergerType>, Var<DictMergerType>,
+/// Var<GroupMergerType>, Var<VecMergerType>.
 ///
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Var<T>(T, Expr);
+pub struct Var<T> {
+    pub(crate) expr: Expr,
+    _marker: PhantomData<T>,
+}
 
-impl Var<ScalarKind> {
-    /// Create a new var of scalar kind assigned a literal.
-    pub fn lit<V>(value: V) -> Self
-    where
-        V: Into<Literal>,
-    {
-        let lit = value.into();
-        let ty = lit.ty();
-        Var(ty.scalar().unwrap(), Expr::Literal(lit))
+impl<T> Var<T> {
+    /// Create a new var with given expression.
+    ///
+    /// This function is only for internal usage.
+    /// The caller must make sure the parameter type
+    /// is consistent with input expression.
+    fn new(expr: Expr) -> Self {
+        Var {
+            expr,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl Var<bool> {
+    /// Create a new var with a literal.
+    pub fn lit_bool(value: bool) -> Self {
+        Var::new(Expr::Literal(value.into()))
     }
 
-    /// Create a new var of scalar kind associated with an expression.
-    /// Caller should ensure the consistency between kind and expr
+    /// Create a new var with an expression.
     #[inline]
-    pub fn scalar(kind: ScalarKind, expr: Expr) -> Self {
-        Var(kind, expr)
+    pub fn expr_bool(expr: Expr) -> Self {
+        assert!(
+            expr.ty().is_bool(),
+            "Imcompatible type {:?} to construct a {:?} var",
+            expr.ty(),
+            stringify!(BoolType)
+        );
+        Var::new(expr)
     }
 }
 
-impl Var<AppenderKind> {
-    pub fn appender() -> Self {
-        todo!()
+impl TypeInference for Var<bool> {
+    fn ty(&self) -> Type {
+        Type::Bool
     }
 }
 
-impl Not for Var<ScalarKind> {
+impl Not for Var<bool> {
     type Output = Self;
 
     fn not(self) -> Self::Output {
-        match (self.0, self.1) {
-            (ScalarKind::Bool, Expr::Literal(Literal::Bool(v))) => Var::lit(v),
-            (
-                ScalarKind::Bool,
-                Expr::UnaryOp(UnaryOp {
-                    kind: UnaryOpKind::Not,
-                    value,
-                }),
-            ) => Var::scalar(ScalarKind::Bool, *value),
-            (ScalarKind::Bool, other) => {
-                Var::scalar(ScalarKind::Bool, Expr::UnaryOp(UnaryOp::not(other)))
-            }
-            (ty, _) => panic!("incompatible type[{:?}] on Not operation", ty),
+        match self.expr {
+            Expr::Literal(Literal::Bool(v)) => Var::lit_bool(v),
+            Expr::UnaryOp(UnaryOp {
+                op_ty: UnaryOpType::Not,
+                value,
+                ..
+            }) => Var::expr_bool(*value),
+            other => Var::expr_bool(Expr::UnaryOp(UnaryOp::not(other))),
         }
     }
 }
 
-impl Neg for Var<ScalarKind> {
+impl Var<String> {
+    /// Create a new var with a literal.
+    pub fn lit_string(value: String) -> Self {
+        Var::new(Expr::Literal(value.into()))
+    }
+
+    /// Create a new var with an expression.
+    #[inline]
+    pub fn expr_string(expr: Expr) -> Self {
+        assert!(
+            expr.ty().is_string(),
+            "Imcompatible type {:?} to construct a {:?} var",
+            expr.ty(),
+            stringify!(StringType)
+        );
+        Var::new(expr)
+    }
+
+    /// Equality check on two vars, and returns a bool var
+    pub fn eq(self, other: Self) -> Var<bool> {
+        Var::new(Expr::BinOp(BinOp::eq(self.expr, other.expr)))
+    }
+
+    /// Non-equality check on two vars, and returns a bool var
+    pub fn ne(self, other: Self) -> Var<bool> {
+        Var::new(Expr::BinOp(BinOp::ne(self.expr, other.expr)))
+    }
+}
+
+impl TypeInference for Var<String> {
+    fn ty(&self) -> Type {
+        Type::String
+    }
+}
+
+impl_num_var!(u8, lit_u8, expr_u8, is_u8, Type::U8);
+impl_num_var!(u32, lit_u32, expr_u32, is_u32, Type::U32);
+impl_num_var!(i32, lit_i32, expr_i32, is_i32, Type::I32);
+impl_num_var!(u64, lit_u64, expr_u64, is_u64, Type::U64);
+impl_num_var!(i64, lit_i64, expr_i64, is_i64, Type::I64);
+impl_num_var!(f32, lit_f32, expr_f32, is_f32, Type::F32);
+impl_num_var!(f64, lit_f64, expr_f64, is_f64, Type::F64);
+
+impl_arith_for_var_num!(Add, Add<u8>, u8, add, +, as_u8, lit_u8, expr_u8, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<u8>, u8, sub, -, as_u8, lit_u8, expr_u8, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<u8>, u8, mul, *, as_u8, lit_u8, expr_u8, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<u8>, u8, div, /, as_u8, lit_u8, expr_u8, BinOp::div);
+
+impl_arith_for_var_num!(Add, Add<u32>, u32, add, +, as_u32, lit_u32, expr_u32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<u32>, u32, sub, -, as_u32, lit_u32, expr_u32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<u32>, u32, mul, *, as_u32, lit_u32, expr_u32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<u32>, u32, div, /, as_u32, lit_u32, expr_u32, BinOp::div);
+
+impl_arith_for_var_num!(Add, Add<i32>, i32, add, +, as_i32, lit_i32, expr_i32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<i32>, i32, sub, -, as_i32, lit_i32, expr_i32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<i32>, i32, mul, *, as_i32, lit_i32, expr_i32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<i32>, i32, div, /, as_i32, lit_i32, expr_i32, BinOp::div);
+
+impl_arith_for_var_num!(Add, Add<u64>, u64, add, +, as_u64, lit_u64, expr_u64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<u64>, u64, sub, -, as_u64, lit_u64, expr_u64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<u64>, u64, mul, *, as_u64, lit_u64, expr_u64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<u64>, u64, div, /, as_u64, lit_u64, expr_u64, BinOp::div);
+
+impl_arith_for_var_num!(Add, Add<i64>, i64, add, +, as_i64, lit_i64, expr_i64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<i64>, i64, sub, -, as_i64, lit_i64, expr_i64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<i64>, i64, mul, *, as_i64, lit_i64, expr_i64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<i64>, i64, div, /, as_i64, lit_i64, expr_i64, BinOp::div);
+
+impl_arith_for_var_num!(Add, Add<f32>, f32, add, +, as_f32, lit_f32, expr_f32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<f32>, f32, sub, -, as_f32, lit_f32, expr_f32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<f32>, f32, mul, *, as_f32, lit_f32, expr_f32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<f32>, f32, div, /, as_f32, lit_f32, expr_f32, BinOp::div);
+
+impl_arith_for_var_num!(Add, Add<f64>, f64, add, +, as_f64, lit_f64, expr_f64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<f64>, f64, sub, -, as_f64, lit_f64, expr_f64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<f64>, f64, mul, *, as_f64, lit_f64, expr_f64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<f64>, f64, div, /, as_f64, lit_f64, expr_f64, BinOp::div);
+
+impl Neg for Var<i32> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        match (self.0, self.1) {
-            (ScalarKind::I32, Expr::Literal(Literal::I32(v))) => Var::lit(-v),
-            (
-                ScalarKind::I32,
-                Expr::UnaryOp(UnaryOp {
-                    kind: UnaryOpKind::Neg,
-                    value,
-                }),
-            ) => Var::scalar(ScalarKind::I32, *value),
-            (ScalarKind::I32, other) => {
-                Var::scalar(ScalarKind::I32, Expr::UnaryOp(UnaryOp::neg(other)))
-            }
-            (ty, _) => panic!("incompatible type[{:?}] on Neg operation", ty),
+        match self.expr {
+            Expr::Literal(Literal::I32(v)) => Var::lit_i32(-v),
+            Expr::UnaryOp(UnaryOp {
+                op_ty: UnaryOpType::Neg,
+                value,
+                ..
+            }) => Var::expr_i32(*value),
+            other => Var::expr_i32(Expr::UnaryOp(UnaryOp::neg(other))),
         }
     }
 }
 
-impl_arith_for_var_scalar!(Add, add, +);
-impl_arith_for_var_scalar!(Sub, sub, -);
-impl_arith_for_var_scalar!(Mul, mul, *);
-impl_arith_for_var_scalar!(Div, div, /);
+impl Neg for Var<i64> {
+    type Output = Self;
 
-impl_arith_for_var_builtin!(Add< u8>,  add,  u8,  as_u8,  ScalarKind::U8, +);
-impl_arith_for_var_builtin!(Add<i32>, add, i32, as_i32, ScalarKind::I32, +);
-impl_arith_for_var_builtin!(Add<u32>, add, u32, as_u32, ScalarKind::U32, +);
-impl_arith_for_var_builtin!(Add<i64>, add, i64, as_i64, ScalarKind::I64, +);
-impl_arith_for_var_builtin!(Add<u64>, add, u64, as_u64, ScalarKind::U64, +);
-impl_arith_for_var_builtin!(Add<f32>, add, f32, as_f32, ScalarKind::F32, +);
-impl_arith_for_var_builtin!(Add<f64>, add, f64, as_f64, ScalarKind::F64, +);
+    fn neg(self) -> Self::Output {
+        match self.expr {
+            Expr::Literal(Literal::I64(v)) => Var::lit_i64(-v),
+            Expr::UnaryOp(UnaryOp {
+                op_ty: UnaryOpType::Neg,
+                value,
+                ..
+            }) => Var::expr_i64(*value),
+            other => Var::expr_i64(Expr::UnaryOp(UnaryOp::neg(other))),
+        }
+    }
+}
 
-impl_arith_for_var_builtin!(Sub< u8>, sub,  u8,  as_u8,  ScalarKind::U8, -);
-impl_arith_for_var_builtin!(Sub<i32>, sub, i32, as_i32, ScalarKind::I32, -);
-impl_arith_for_var_builtin!(Sub<u32>, sub, u32, as_u32, ScalarKind::U32, -);
-impl_arith_for_var_builtin!(Sub<i64>, sub, i64, as_i64, ScalarKind::I64, -);
-impl_arith_for_var_builtin!(Sub<u64>, sub, u64, as_u64, ScalarKind::U64, -);
-impl_arith_for_var_builtin!(Sub<f32>, sub, f32, as_f32, ScalarKind::F32, -);
-impl_arith_for_var_builtin!(Sub<f64>, sub, f64, as_f64, ScalarKind::F64, -);
+/// Implements methods on appender var.
+impl Var<AppenderType> {
+    /// Create a new var of appender with given item type.
+    pub fn appender(item_ty: Type) -> Self {
+        Var::new(Expr::NewAppender(NewAppender { item_ty }))
+    }
 
-impl_arith_for_var_builtin!(Mul< u8>, mul,  u8,  as_u8,  ScalarKind::U8, *);
-impl_arith_for_var_builtin!(Mul<i32>, mul, i32, as_i32, ScalarKind::I32, *);
-impl_arith_for_var_builtin!(Mul<u32>, mul, u32, as_u32, ScalarKind::U32, *);
-impl_arith_for_var_builtin!(Mul<i64>, mul, i64, as_i64, ScalarKind::I64, *);
-impl_arith_for_var_builtin!(Mul<u64>, mul, u64, as_u64, ScalarKind::U64, *);
-impl_arith_for_var_builtin!(Mul<f32>, mul, f32, as_f32, ScalarKind::F32, *);
-impl_arith_for_var_builtin!(Mul<f64>, mul, f64, as_f64, ScalarKind::F64, *);
+    /// Evaluate the appender and returns a var of vector.
+    pub fn eval(self) -> Var<VectorType> {
+        let result = Eval(Box::new(self.expr));
+        assert!(result.ty().is_vector());
+        Var::new(Expr::Eval(result))
+    }
 
-impl_arith_for_var_builtin!(Div< u8>, div,  u8,  as_u8,  ScalarKind::U8, /);
-impl_arith_for_var_builtin!(Div<i32>, div, i32, as_i32, ScalarKind::I32, /);
-impl_arith_for_var_builtin!(Div<u32>, div, u32, as_u32, ScalarKind::U32, /);
-impl_arith_for_var_builtin!(Div<i64>, div, i64, as_i64, ScalarKind::I64, /);
-impl_arith_for_var_builtin!(Div<u64>, div, u64, as_u64, ScalarKind::U64, /);
-impl_arith_for_var_builtin!(Div<f32>, div, f32, as_f32, ScalarKind::F32, /);
-impl_arith_for_var_builtin!(Div<f64>, div, f64, as_f64, ScalarKind::F64, /);
+    /// Merge the appender with given item and return the updated appender.
+    ///
+    /// The internal implementation of merging might be executed in place
+    /// instead of constructing a brand new appender.
+    pub fn merge<T>(self, item: T) -> Self
+    where
+        T: Into<Expr>,
+    {
+        let m = match self.expr {
+            Expr::NewAppender(appender) => appender.merge(item),
+            Expr::Merge(merge) => merge.merge(item),
+            _ => unreachable!(),
+        };
+        Var::new(Expr::Merge(m))
+    }
+}
+
+impl TypeInference for Var<AppenderType> {
+    fn ty(&self) -> Type {
+        self.expr.ty()
+    }
+}
+
+/// Implements methods on vector var.
+impl Var<VectorType> {
+    /// Create a new var of vector with given items
+    pub fn vector<T>(items: Vec<T>) -> Self
+    where
+        T: Into<Expr>,
+    {
+        assert!(
+            !items.is_empty(),
+            "Empty list of items not allowed in creating new vector, use appender instead"
+        );
+        let items: Vec<Expr> = items.into_iter().map(Into::into).collect();
+        let item_ty: Type = items[0].ty();
+        Var::new(Expr::NewVector(NewVector { item_ty, items }))
+    }
+
+    // pub fn pfor<B, F>(self, builder: B, f: FnOnce(B, Var<u64>, B::Item) -> B)
+}
 
 #[cfg(test)]
 mod tests {
@@ -123,19 +245,25 @@ mod tests {
 
     #[test]
     fn test_var_lit_add() {
-        let v1 = Var::lit(1);
-        let v2 = Var::lit(2);
+        let v1 = Var::lit_i32(1);
+        let v2 = Var::lit_i32(2);
         let v3 = v1 + v2;
-        assert_eq!(Var::lit(3), v3);
-        let v4 = Var::lit(4);
-        assert_eq!(Var::lit(8), v4 + 4);
+        assert_eq!(Var::lit_i32(3), v3);
+        let v4 = Var::lit_i32(4);
+        assert_eq!(Var::lit_i32(8), v4 + 4);
     }
 
     #[test]
-    #[should_panic]
-    fn test_var_lit_incompat() {
-        let v1 = Var::lit(true);
-        let v2 = Var::lit(2);
-        let _ = v1 + v2;
+    fn test_var_appender() {
+        let a1 = Var::appender(Type::I32);
+        let a2 = a1.merge(1);
+        let a3 = a2.merge(2);
+        let a4 = a3.merge(3);
+        println!("{:?}", a4.eval());
+    }
+
+    #[test]
+    fn test_var_vector() {
+        let v1 = Var::vector(vec![1, 2, 3]);
     }
 }

@@ -4,10 +4,10 @@ use super::{Expr, Type, TypeInference};
 ///
 /// e.g. evaluating a Appender will return a vector.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Eval(Box<Expr>);
+pub struct Eval(pub(crate) Box<Expr>);
 
 impl TypeInference for Eval {
     fn ty(&self) -> Type {
-        todo!()
+        self.0.ty().eval()
     }
 }

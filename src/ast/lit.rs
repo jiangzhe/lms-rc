@@ -1,4 +1,4 @@
-use super::{ScalarKind, Type, TypeInference};
+use super::{Expr, Type, TypeInference};
 
 /// Literal represents constant values already known at compile time
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -87,6 +87,14 @@ impl_from_for_lit!(u32, Literal::U32);
 impl_from_for_lit!(u64, Literal::U64);
 impl_from_for_lit!(String, Literal::String);
 
+impl_from_for_lit_expr!(bool, Literal::Bool);
+impl_from_for_lit_expr!(u8, Literal::U8);
+impl_from_for_lit_expr!(i32, Literal::I32);
+impl_from_for_lit_expr!(i64, Literal::I64);
+impl_from_for_lit_expr!(u32, Literal::U32);
+impl_from_for_lit_expr!(u64, Literal::U64);
+impl_from_for_lit_expr!(String, Literal::String);
+
 /// special conversion between f32 and Literal
 impl From<f32> for Literal {
     fn from(src: f32) -> Self {
@@ -104,15 +112,15 @@ impl From<f64> for Literal {
 impl TypeInference for Literal {
     fn ty(&self) -> Type {
         match self {
-            Literal::Bool(_) => Type::Scalar(ScalarKind::Bool),
-            Literal::U8(_) => Type::Scalar(ScalarKind::U8),
-            Literal::I32(_) => Type::Scalar(ScalarKind::I32),
-            Literal::I64(_) => Type::Scalar(ScalarKind::I64),
-            Literal::U32(_) => Type::Scalar(ScalarKind::U32),
-            Literal::U64(_) => Type::Scalar(ScalarKind::U64),
-            Literal::F32(_) => Type::Scalar(ScalarKind::F32),
-            Literal::F64(_) => Type::Scalar(ScalarKind::F64),
-            Literal::String(_) => Type::Scalar(ScalarKind::String),
+            Literal::Bool(_) => Type::Bool,
+            Literal::U8(_) => Type::U8,
+            Literal::I32(_) => Type::I32,
+            Literal::I64(_) => Type::I64,
+            Literal::U32(_) => Type::U32,
+            Literal::U64(_) => Type::U64,
+            Literal::F32(_) => Type::F32,
+            Literal::F64(_) => Type::F64,
+            Literal::String(_) => Type::String,
         }
     }
 }

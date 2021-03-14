@@ -9,7 +9,7 @@ mod eval;
 mod expr;
 mod function;
 mod get_field;
-mod ite;
+mod ifte;
 mod iter;
 mod lambda;
 mod length;
@@ -18,7 +18,6 @@ mod lookup;
 mod merge;
 mod param;
 mod pfor;
-mod scalar;
 mod sym;
 mod tuple;
 mod ty;
@@ -26,20 +25,20 @@ mod unary_op;
 mod var;
 mod vector;
 
-pub use bin_op::{BinOp, BinOpKind};
+pub use bin_op::{BinOp, BinOpType};
 pub use broadcast::Broadcast;
 pub use builder::{
-    AppenderKind, DictMergerKind, GroupMergerKind, MergerKind, NewAppender, NewDictMerger,
-    NewGroupMerger, NewMerger, NewVecMerger, VecMergerKind,
+    AppenderType, Builder, DictMergerType, GroupMergerType, MergerType, NewAppender, NewDictMerger,
+    NewGroupMerger, NewMerger, NewVecMerger, VecMergerType,
 };
 pub use cast::Cast;
-pub use dict::{DictKind, NewDict};
+pub use dict::{DictType, NewDict};
 use enum_dispatch::enum_dispatch;
 pub use eval::Eval;
 pub use expr::Expr;
-pub use function::FunctionKind;
+pub use function::FunctionType;
 pub use get_field::GetField;
-pub use ite::IfThenElse;
+pub use ifte::IfThenElse;
 pub use iter::Iter;
 pub use lambda::Lambda;
 pub use length::Length;
@@ -48,13 +47,12 @@ pub use lookup::Lookup;
 pub use merge::Merge;
 pub use param::Parameter;
 pub use pfor::For;
-pub use scalar::ScalarKind;
 pub use sym::Symbol;
-pub use tuple::TupleKind;
+pub use tuple::TupleType;
 pub use ty::Type;
-pub use unary_op::{UnaryOp, UnaryOpKind};
+pub use unary_op::{UnaryOp, UnaryOpType};
 pub use var::Var;
-pub use vector::{NewVector, VectorKind};
+pub use vector::{NewVector, VectorType};
 
 /// Enable type inference on any expression.
 ///

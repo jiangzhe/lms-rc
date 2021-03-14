@@ -1,8 +1,8 @@
-use super::{Expr, ScalarKind, Type, TypeInference};
+use super::{Expr, Type, TypeInference};
 
 /// Types of binary operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum BinOpKind {
+pub enum BinOpType {
     Add,
     Subtract,
     Multiply,
@@ -27,7 +27,7 @@ pub enum BinOpKind {
 /// A binary operation on two expressions.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BinOp {
-    kind: BinOpKind,
+    op_ty: BinOpType,
     left: Box<Expr>,
     right: Box<Expr>,
 }
@@ -35,7 +35,47 @@ pub struct BinOp {
 impl BinOp {
     pub fn add(left: Expr, right: Expr) -> Self {
         BinOp {
-            kind: BinOpKind::Add,
+            op_ty: BinOpType::Add,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    pub fn sub(left: Expr, right: Expr) -> Self {
+        BinOp {
+            op_ty: BinOpType::Subtract,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    pub fn mul(left: Expr, right: Expr) -> Self {
+        BinOp {
+            op_ty: BinOpType::Multiply,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    pub fn div(left: Expr, right: Expr) -> Self {
+        BinOp {
+            op_ty: BinOpType::Divide,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    pub fn eq(left: Expr, right: Expr) -> Self {
+        BinOp {
+            op_ty: BinOpType::Equal,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
+    pub fn ne(left: Expr, right: Expr) -> Self {
+        BinOp {
+            op_ty: BinOpType::NotEqual,
             left: Box::new(left),
             right: Box::new(right),
         }
@@ -44,22 +84,17 @@ impl BinOp {
 
 impl TypeInference for BinOp {
     fn ty(&self) -> Type {
-        match self.kind {
-            BinOpKind::Add
-            | BinOpKind::Subtract
-            | BinOpKind::Multiply
-            | BinOpKind::Divide
-            | BinOpKind::Modulo => self.left.ty(),
-            BinOpKind::Equal
-            | BinOpKind::NotEqual
-            | BinOpKind::LessThan
-            | BinOpKind::LessThanOrEqual
-            | BinOpKind::GreaterThan
-            | BinOpKind::GreaterThanOrEqual
-            | BinOpKind::LogicalAnd
-            | BinOpKind::LogicalOr => Type::Scalar(ScalarKind::Bool),
-            BinOpKind::BitwiseAnd | BinOpKind::BitwiseOr | BinOpKind::Xor => self.left.ty(),
-            BinOpKind::Max | BinOpKind::Min | BinOpKind::Pow => self.left.ty(),
+        match self.op_ty {
+            BinOpType::Equal
+            | BinOpType::NotEqual
+            | BinOpType::LessThan
+            | BinOpType::LessThanOrEqual
+            | BinOpType::GreaterThan
+            | BinOpType::GreaterThanOrEqual
+            | BinOpType::LogicalAnd
+            | BinOpType::LogicalOr => Type::Bool,
+            // any other operator, infer type of left operand
+            _ => self.left.ty(),
         }
     }
 }

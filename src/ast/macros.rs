@@ -1,120 +1,37 @@
-macro_rules! impl_arith_for_var_scalar {
-    ($ty:ty, $func:ident, $op:tt) => {
+macro_rules! impl_num_var {
+    ($ty:ty, $litf:ident, $exprf:ident, $checkf:ident, $typepath:path) => {
+        impl Var<$ty> {
+            /// Create a new var with literal.
+            pub fn $litf(value: $ty) -> Self {
+                Var::new(Expr::Literal(value.into()))
+            }
 
-        impl $ty for Var<ScalarKind> {
-            type Output = Self;
+            /// Create a new var with an expression.
+            #[inline]
+            pub fn $exprf(expr: Expr) -> Self {
+                assert!(
+                    expr.ty().$checkf(),
+                    "Imcompatible type {:?} to construct a {:?} var",
+                    expr.ty(),
+                    stringify!($ty)
+                );
+                Var::new(expr)
+            }
 
-            fn $func(self, other: Self) -> Self::Output {
-                match (self.0, other.0) {
-                    // unsigned integer
-                    (ScalarKind::U8, ScalarKind::U8) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_u8().unwrap() $op v1.as_u8().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::U8, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    (ScalarKind::U32, ScalarKind::U32) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_u32().unwrap() $op v1.as_u32().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::U32, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    (ScalarKind::U64, ScalarKind::U64) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_u64().unwrap() $op v1.as_u64().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::U64, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    // signed integer
-                    (ScalarKind::I32, ScalarKind::I32) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_i32().unwrap() $op v1.as_i32().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::I32, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    (ScalarKind::I64, ScalarKind::I64) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_i64().unwrap() $op v1.as_i64().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::I64, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    // floating number
-                    (ScalarKind::F32, ScalarKind::F32) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_f32().unwrap() $op v1.as_f32().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::I32, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    (ScalarKind::F64, ScalarKind::F64) => {
-                        match (self.1, other.1) {
-                            (Expr::Literal(v0), Expr::Literal(v1)) => {
-                                let v = v0.as_f64().unwrap() $op v1.as_f64().unwrap();
-                                Var::lit(v)
-                            }
-                            (v0, v1) => {
-                                Var::scalar(ScalarKind::I64, Expr::BinOp(BinOp::add(v0, v1)))
-                            }
-                        }
-                    }
-                    (k0, k1) => panic!("incompatible types[{:?} & {:?}] in {} operation", k0, k1, stringify!($ty)),
-                }
+            /// Equality check on two vars and returns a bool var
+            pub fn eq(self, other: Self) -> Var<bool> {
+                Var::new(Expr::BinOp(BinOp::eq(self.expr, other.expr)))
+            }
+
+            /// Non-equality check on two vars, and returns a bool var
+            pub fn ne(self, other: Self) -> Var<bool> {
+                Var::new(Expr::BinOp(BinOp::ne(self.expr, other.expr)))
             }
         }
-    }
-}
 
-macro_rules! impl_arith_for_var_builtin {
-    ($ty:ty, $func:ident, $rty:ty, $asfunc:ident, $p1:path, $op:tt) => {
-        impl $ty for Var<ScalarKind> {
-            type Output = Self;
-
-            fn $func(self, other: $rty) -> Self::Output {
-                match self.0 {
-                    $p1 => match self.1 {
-                        Expr::Literal(f0) => {
-                            let r = f0.$asfunc().unwrap() + other;
-                            return Var::lit(r);
-                        }
-                        _ => (),
-                    },
-                    _ => (),
-                }
-                panic!(
-                    "incompatible types[{:?} & {:?}] in {} operation",
-                    self,
-                    other,
-                    stringify!($ty)
-                )
+        impl TypeInference for Var<$ty> {
+            fn ty(&self) -> Type {
+                $typepath
             }
         }
     };
@@ -128,4 +45,61 @@ macro_rules! impl_from_for_lit {
             }
         }
     };
+}
+
+macro_rules! impl_from_for_lit_expr {
+    ($ty:ty, $path:path) => {
+        impl From<$ty> for Expr {
+            fn from(src: $ty) -> Self {
+                Expr::Literal($path(src))
+            }
+        }
+    };
+}
+
+macro_rules! impl_from_for_type {
+    ($ty:ty, $path:path) => {
+        impl From<$ty> for Type {
+            fn from(src: $ty) -> Self {
+                $path(src)
+            }
+        }
+    };
+}
+
+macro_rules! impl_arith_for_var_num {
+    ($opty:ty, $opgty:ty, $builtinty:ty, $opf:ident, $op:tt, $asf:ident, $litf:ident, $exprf:ident, $binopf:path) => {
+        impl $opty for Var<$builtinty> {
+            type Output = Self;
+
+            fn $opf(self, other: Self) -> Self {
+                match (self.expr, other.expr) {
+                    (Expr::Literal(v0), Expr::Literal(v1)) => {
+                        let v = v0.$asf().unwrap() $op v1.$asf().unwrap();
+                        Var::$litf(v)
+                    }
+                    (v0, v1) => {
+                        Var::$exprf(Expr::BinOp($binopf(v0, v1)))
+                    }
+                }
+            }
+        }
+
+        impl $opgty for Var<$builtinty> {
+            type Output = Self;
+
+            fn $opf(self, other: $builtinty) -> Self {
+                match self.expr {
+                    Expr::Literal(v0) => {
+                        let v = v0.$asf().unwrap() $op other;
+                        Var::$litf(v)
+                    }
+                    v0 => {
+                        let v1 = other.into();
+                        Var::$exprf(Expr::BinOp($binopf(v0, Expr::Literal(v1))))
+                    }
+                }
+            }
+        }
+    }
 }

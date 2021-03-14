@@ -1,7 +1,7 @@
-use super::{Expr, ScalarKind, Type, TypeInference};
+use super::{Expr, Type, TypeInference};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum UnaryOpKind {
+pub enum UnaryOpType {
     // Invert a boolean expression
     Not,
     // Negates a numerical expression
@@ -21,20 +21,21 @@ pub enum UnaryOpKind {
     Erf,
 }
 
+/// Unary operation on single expression.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnaryOp {
-    pub kind: UnaryOpKind,
-    pub value: Box<Expr>,
+    pub(super) op_ty: UnaryOpType,
+    pub(super) value: Box<Expr>,
 }
 
 impl UnaryOp {
     pub fn not(value: Expr) -> Self {
         assert!(
-            value.ty() == Type::Scalar(ScalarKind::Bool),
+            value.ty() == Type::Bool,
             "incompatible type on Not operator"
         );
         UnaryOp {
-            kind: UnaryOpKind::Not,
+            op_ty: UnaryOpType::Not,
             value: Box::new(value),
         }
     }
@@ -42,11 +43,11 @@ impl UnaryOp {
     pub fn neg(value: Expr) -> Self {
         let ty = value.ty();
         assert!(
-            ty == Type::Scalar(ScalarKind::I32) || ty == Type::Scalar(ScalarKind::I64),
+            ty == Type::I32 || ty == Type::I64,
             "incompatible type on Neg operator"
         );
         UnaryOp {
-            kind: UnaryOpKind::Neg,
+            op_ty: UnaryOpType::Neg,
             value: Box::new(value),
         }
     }
@@ -54,6 +55,10 @@ impl UnaryOp {
 
 impl TypeInference for UnaryOp {
     fn ty(&self) -> Type {
-        todo!()
+        match self.op_ty {
+            UnaryOpType::Not => Type::Bool,
+            UnaryOpType::Neg => self.value.ty(),
+            _ => todo!(),
+        }
     }
 }

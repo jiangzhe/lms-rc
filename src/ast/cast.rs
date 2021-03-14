@@ -1,14 +1,14 @@
-use super::{Expr, ScalarKind, Type, TypeInference};
+use super::{Expr, Type, TypeInference};
 
 /// Cast an expression to a certain type.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Cast {
-    kind: ScalarKind,
+    ty: Type,
     value: Box<Expr>,
 }
 
 impl TypeInference for Cast {
     fn ty(&self) -> Type {
-        Type::Scalar(self.kind)
+        self.ty.clone()
     }
 }
