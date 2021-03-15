@@ -316,3 +316,58 @@ impl Type {
         }
     }
 }
+
+impl std::fmt::Display for Type {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Type::Bool => f.write_str("Bool"),
+            Type::U8 => f.write_str("U8"),
+            Type::U32 => f.write_str("U32"),
+            Type::I32 => f.write_str("I32"),
+            Type::U64 => f.write_str("U64"),
+            Type::I64 => f.write_str("I64"),
+            Type::F32 => f.write_str("F32"),
+            Type::F64 => f.write_str("F64"),
+            Type::String => f.write_str("String"),
+            Type::Vector(v) => v.fmt(f),
+            Type::Dict(d) => d.fmt(f),
+            Type::Tuple(t) => t.fmt(f),
+            Type::Function(func) => func.fmt(f),
+            Type::Appender(a) => a.fmt(f),
+            Type::Merger(m) => m.fmt(f),
+            Type::DictMerger(dm) => dm.fmt(f),
+            Type::GroupMerger(gm) => gm.fmt(f),
+            Type::VecMerger(vm) => vm.fmt(f),
+            Type::Unknown => f.write_str("Unknown"),
+        }
+    }
+}
+
+/// Base trait for static type information
+pub trait StaticType {
+    fn ty() -> Type;
+}
+
+impl_static_type!(u8, Type::U8);
+impl_static_type!(u32, Type::U32);
+impl_static_type!(i32, Type::I32);
+impl_static_type!(u64, Type::U64);
+impl_static_type!(i64, Type::I64);
+impl_static_type!(f32, Type::F32);
+impl_static_type!(f64, Type::F64);
+impl_static_type!(String, Type::String);
+
+/// Base trait for dynamic type information
+pub trait DynamicType {
+    fn ty(self) -> Type;
+}
+
+impl_dynamic_type!(VectorType, Type::Vector);
+impl_dynamic_type!(DictType, Type::Dict);
+impl_dynamic_type!(TupleType, Type::Tuple);
+impl_dynamic_type!(FunctionType, Type::Function);
+impl_dynamic_type!(AppenderType, Type::Appender);
+impl_dynamic_type!(MergerType, Type::Merger);
+impl_dynamic_type!(DictMergerType, Type::DictMerger);
+impl_dynamic_type!(GroupMergerType, Type::GroupMerger);
+impl_dynamic_type!(VecMergerType, Type::VecMerger);

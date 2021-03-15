@@ -12,3 +12,9 @@ impl TypeInference for Cast {
         self.ty.clone()
     }
 }
+
+impl std::fmt::Display for Cast {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Cast<{}>({})", self.ty, self.value)
+    }
+}

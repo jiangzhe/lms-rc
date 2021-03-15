@@ -46,3 +46,30 @@ pub enum Expr {
     /// Consume a builder and return its result
     Eval(Eval),
 }
+
+impl std::fmt::Display for Expr {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Expr::Literal(lit) => lit.fmt(f),
+            Expr::Broadcast(bc) => bc.fmt(f),
+            Expr::BinOp(bo) => bo.fmt(f),
+            Expr::UnaryOp(uo) => uo.fmt(f),
+            Expr::Cast(c) => c.fmt(f),
+            Expr::GetField(gf) => gf.fmt(f),
+            Expr::Length(len) => len.fmt(f),
+            Expr::Lookup(lkp) => lkp.fmt(f),
+            Expr::IfThenElse(ite) => ite.fmt(f),
+            Expr::For(fr) => fr.fmt(f),
+            Expr::Merge(mg) => mg.fmt(f),
+            Expr::Lambda(lmd) => lmd.fmt(f),
+            Expr::NewVector(nv) => nv.fmt(f),
+            Expr::NewDict(nd) => nd.fmt(f),
+            Expr::NewAppender(na) => na.fmt(f),
+            Expr::NewMerger(nm) => nm.fmt(f),
+            Expr::NewDictMerger(ndm) => ndm.fmt(f),
+            Expr::NewGroupMerger(ngm) => ngm.fmt(f),
+            Expr::NewVecMerger(nvm) => nvm.fmt(f),
+            Expr::Eval(ev) => ev.fmt(f),
+        }
+    }
+}

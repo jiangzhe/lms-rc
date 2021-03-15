@@ -31,6 +31,12 @@ impl<T> Var<T> {
     }
 }
 
+impl<T> From<Var<T>> for Expr {
+    fn from(src: Var<T>) -> Self {
+        src.expr
+    }
+} 
+
 impl Var<bool> {
     /// Create a new var with a literal.
     pub fn lit_bool(value: bool) -> Self {
@@ -219,6 +225,97 @@ impl TypeInference for Var<AppenderType> {
     }
 }
 
+impl Var<MergerType> {
+    /// Create a new var of merger with given item type and operator.
+    pub fn merger(item_ty: Type, op_ty: BinOpType) -> Self {
+        Var::new(Expr::NewMerger(NewMerger { item_ty, op_ty }))
+    }
+
+    /// Evaluate the merger with static type, e.g. i32, i64, String, etc.
+    /// Returns the var of static type.
+    pub fn eval_static<T>(self) -> Var<T>
+    where
+        T: StaticType,
+    {
+        let result = Eval(Box::new(self.expr));
+        assert!(
+            result.ty() == T::ty(),
+            "Imcompatible types[{:?} and {:?}] on eval operation",
+            result.ty(),
+            T::ty()
+        );
+        Var::new(Expr::Eval(result))
+    }
+
+    /// Evaluate the merger with dynamic type, e.g. Tuple, Vector, etc.
+    ///
+    /// The input type should be consistent with the eval type.
+    pub fn eval_dynamic<T>(self, item_ty: T) -> Var<T>
+    where
+        T: DynamicType,
+    {
+        let item_ty = item_ty.ty();
+        let result = Eval(Box::new(self.expr));
+        assert!(
+            result.ty() == item_ty,
+            "Imcompatible types[{:?} and {:?}] on eval operation",
+            result.ty(),
+            item_ty
+        );
+        Var::new(Expr::Eval(result))
+    }
+
+    /// Merge the merger with given item and return the updated merger.
+    pub fn merge<T>(self, item: T) -> Self
+    where
+        T: Into<Expr>,
+    {
+        let m = match self.expr {
+            Expr::NewMerger(merger) => merger.merge(item),
+            Expr::Merge(merge) => merge.merge(item),
+            _ => unreachable!(),
+        };
+        Var::new(Expr::Merge(m))
+    }
+}
+
+impl TypeInference for Var<MergerType> {
+    fn ty(&self) -> Type {
+        self.expr.ty()
+    }
+}
+
+impl Var<DictMergerType> {
+    /// Create a new var of dictmerger with given key, value type and operator.
+    pub fn dictmerger(key_ty: Type, value_ty: Type, op_ty: BinOpType) -> Self {
+        Var::new(Expr::NewDictMerger(NewDictMerger {
+            key_ty,
+            value_ty,
+            op_ty,
+        }))
+    }
+
+    /// Evaluate the dictmerger and returns a var of dict.
+    pub fn eval(self) -> Var<DictType> {
+        let result = Eval(Box::new(self.expr));
+        assert!(result.ty().is_dict());
+        Var::new(Expr::Eval(result))
+    }
+
+    /// Merge the dictmerger with given item and return the updated dictmerger.
+    pub fn merge<T>(self, item: T) -> Self
+    where
+        T: Into<Expr>,
+    {
+        let m = match self.expr {
+            Expr::NewDictMerger(dictmerger) => dictmerger.merge(item),
+            Expr::Merge(merge) => merge.merge(item),
+            _ => unreachable!(),
+        };
+        Var::new(Expr::Merge(m))
+    }
+}
+
 /// Implements methods on vector var.
 impl Var<VectorType> {
     /// Create a new var of vector with given items
@@ -235,8 +332,41 @@ impl Var<VectorType> {
         Var::new(Expr::NewVector(NewVector { item_ty, items }))
     }
 
-    // pub fn pfor<B, F>(self, builder: B, f: FnOnce(B, Var<u64>, B::Item) -> B)
+    pub fn pfor<B, T, F>(self, builder: Var<B>, f: F) -> For 
+    where
+        T: Into<Expr>,
+        F: FnOnce(Var<B>, Var<u64>, T) -> Var<B>,
+        F: 'static,
+    {
+        let iter = Iter{data: Box::new(self.expr), start: None, end: None};
+
+        // function params
+        // let p1 = Var::new()
+
+        // // function body
+
+        // For{
+        //     iters: vec![iter],
+        //     builder: Box::new(builder.expr),
+        //     func: 
+        // }
+        todo!()
+    }
 }
+
+/// Marker trait for var with builder type
+pub trait BuilderVar {
+
+    fn expr(self) -> Expr;
+}
+
+impl BuilderVar for Var<AppenderType> {
+    fn expr(self) -> Expr {
+        self.expr
+    }
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -259,11 +389,24 @@ mod tests {
         let a2 = a1.merge(1);
         let a3 = a2.merge(2);
         let a4 = a3.merge(3);
-        println!("{:?}", a4.eval());
+        println!("{}", a4.eval().expr);
+    }
+
+    #[test]
+    fn test_var_merger() {
+        let m1 = Var::merger(Type::I32, BinOpType::Add);
+        let m2 = m1.merge(1);
+        let m3 = m2.merge(2);
+        let m4 = m3.merge(3);
+        println!("{}", m4.eval_static::<i32>().expr);
     }
 
     #[test]
     fn test_var_vector() {
         let v1 = Var::vector(vec![1, 2, 3]);
+        let m1 = Var::merger(Type::I32, BinOpType::Add);
+        let f1 = v1.pfor(m1, |b, i, e: Var<i32>| {
+            b.merge(e)
+        });
     }
 }

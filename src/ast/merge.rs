@@ -36,3 +36,9 @@ impl Builder for Merge {
         self.ty().eval()
     }
 }
+
+impl std::fmt::Display for Merge {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Merge({}, {})", self.builder, self.value)
+    }
+}

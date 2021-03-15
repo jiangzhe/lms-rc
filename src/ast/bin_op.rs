@@ -24,12 +24,14 @@ pub enum BinOpType {
     Pow,
 }
 
+derive_display!(BinOpType);
+
 /// A binary operation on two expressions.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BinOp {
-    op_ty: BinOpType,
-    left: Box<Expr>,
-    right: Box<Expr>,
+    pub(super) op_ty: BinOpType,
+    pub(super) left: Box<Expr>,
+    pub(super) right: Box<Expr>,
 }
 
 impl BinOp {
@@ -96,5 +98,11 @@ impl TypeInference for BinOp {
             // any other operator, infer type of left operand
             _ => self.left.ty(),
         }
+    }
+}
+
+impl std::fmt::Display for BinOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}({}, {})", self.op_ty, self.left, self.right)
     }
 }

@@ -5,9 +5,9 @@ use super::{Builder, Expr, Iter, Merge, Type, TypeInference};
 /// The usage of For already be coupled with some builder.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct For {
-    iters: Vec<Iter>,
-    builder: Box<Expr>,
-    func: Box<Expr>,
+    pub(super) iters: Vec<Iter>,
+    pub(super) builder: Box<Expr>,
+    pub(super) func: Box<Expr>,
 }
 
 impl TypeInference for For {
@@ -37,5 +37,19 @@ impl Builder for For {
 
     fn eval_type(&self) -> Type {
         self.ty().eval()
+    }
+}
+
+impl std::fmt::Display for For {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use std::fmt::Write;
+        f.write_str("For([")?;
+        for (i, t) in self.iters.iter().enumerate() {
+            if i > 0 {
+                f.write_char(',')?;
+            }
+            t.fmt(f)?;
+        }
+        write!(f, "], {}, {})", self.builder, self.func)
     }
 }

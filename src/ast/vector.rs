@@ -8,6 +8,12 @@ pub struct VectorType {
 
 impl_from_for_type!(VectorType, Type::Vector);
 
+impl std::fmt::Display for VectorType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{}]", self.item_ty)
+    }
+}
+
 /// A new Vector.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewVector {
@@ -21,5 +27,17 @@ impl TypeInference for NewVector {
         Type::Vector(VectorType {
             item_ty: Box::new(self.item_ty.clone()),
         })
+    }
+}
+
+impl std::fmt::Display for NewVector {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use std::fmt::Write;
+        write!(f, "NewVector<{}>", self.item_ty)?;
+        f.write_char('(')?;
+        for e in &self.items {
+            e.fmt(f)?;
+        }
+        f.write_char(')')
     }
 }

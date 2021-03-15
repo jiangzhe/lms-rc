@@ -3,12 +3,18 @@ use super::{Expr, Type, TypeInference};
 /// Lookup value in dictionary.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lookup {
-    data: Box<Expr>,
-    index: Box<Expr>,
+    pub(super) data: Box<Expr>,
+    pub(super) index: Box<Expr>,
 }
 
 impl TypeInference for Lookup {
     fn ty(&self) -> Type {
         todo!()
+    }
+}
+
+impl std::fmt::Display for Lookup {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Lookup({}, {})", self.data, self.index)
     }
 }

@@ -103,3 +103,33 @@ macro_rules! impl_arith_for_var_num {
         }
     }
 }
+
+macro_rules! impl_static_type {
+    ($ty:ty, $path:path) => {
+        impl StaticType for $ty {
+            fn ty() -> Type {
+                $path
+            }
+        }
+    };
+}
+
+macro_rules! impl_dynamic_type {
+    ($ty:ty, $path:path) => {
+        impl DynamicType for $ty {
+            fn ty(self) -> Type {
+                $path(self)
+            }
+        }
+    };
+}
+
+macro_rules! derive_display {
+    ($ty:ty) => {
+        impl std::fmt::Display for $ty {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                std::fmt::Debug::fmt(self, f)
+            }
+        }
+    };
+}

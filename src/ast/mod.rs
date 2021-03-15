@@ -49,7 +49,7 @@ pub use param::Parameter;
 pub use pfor::For;
 pub use sym::Symbol;
 pub use tuple::TupleType;
-pub use ty::Type;
+pub use ty::{DynamicType, StaticType, Type};
 pub use unary_op::{UnaryOp, UnaryOpType};
 pub use var::Var;
 pub use vector::{NewVector, VectorType};

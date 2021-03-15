@@ -124,3 +124,19 @@ impl TypeInference for Literal {
         }
     }
 }
+
+impl std::fmt::Display for Literal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Literal::Bool(v) => v.fmt(f),
+            Literal::U8(v) => v.fmt(f),
+            Literal::I32(v) => v.fmt(f),
+            Literal::I64(v) => v.fmt(f),
+            Literal::U32(v) => v.fmt(f),
+            Literal::U64(v) => v.fmt(f),
+            Literal::F32(v) => v.fmt(f),
+            Literal::F64(v) => v.fmt(f),
+            Literal::String(v) => v.fmt(f),
+        }
+    }
+}

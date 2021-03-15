@@ -21,6 +21,8 @@ pub enum UnaryOpType {
     Erf,
 }
 
+derive_display!(UnaryOpType);
+
 /// Unary operation on single expression.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnaryOp {
@@ -60,5 +62,11 @@ impl TypeInference for UnaryOp {
             UnaryOpType::Neg => self.value.ty(),
             _ => todo!(),
         }
+    }
+}
+
+impl std::fmt::Display for UnaryOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}({})", self.op_ty, self.value)
     }
 }
