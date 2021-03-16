@@ -35,7 +35,7 @@ impl<T> From<Var<T>> for Expr {
     fn from(src: Var<T>) -> Self {
         src.expr
     }
-} 
+}
 
 impl Var<bool> {
     /// Create a new var with a literal.
@@ -332,13 +332,17 @@ impl Var<VectorType> {
         Var::new(Expr::NewVector(NewVector { item_ty, items }))
     }
 
-    pub fn pfor<B, T, F>(self, builder: Var<B>, f: F) -> For 
+    pub fn pfor<B, T, F>(self, builder: Var<B>, f: F) -> For
     where
         T: Into<Expr>,
         F: FnOnce(Var<B>, Var<u64>, T) -> Var<B>,
         F: 'static,
     {
-        let iter = Iter{data: Box::new(self.expr), start: None, end: None};
+        let iter = Iter {
+            data: Box::new(self.expr),
+            start: None,
+            end: None,
+        };
 
         // function params
         // let p1 = Var::new()
@@ -348,7 +352,7 @@ impl Var<VectorType> {
         // For{
         //     iters: vec![iter],
         //     builder: Box::new(builder.expr),
-        //     func: 
+        //     func:
         // }
         todo!()
     }
@@ -356,7 +360,6 @@ impl Var<VectorType> {
 
 /// Marker trait for var with builder type
 pub trait BuilderVar {
-
     fn expr(self) -> Expr;
 }
 
@@ -365,8 +368,6 @@ impl BuilderVar for Var<AppenderType> {
         self.expr
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -405,8 +406,6 @@ mod tests {
     fn test_var_vector() {
         let v1 = Var::vector(vec![1, 2, 3]);
         let m1 = Var::merger(Type::I32, BinOpType::Add);
-        let f1 = v1.pfor(m1, |b, i, e: Var<i32>| {
-            b.merge(e)
-        });
+        let f1 = v1.pfor(m1, |b, i, e: Var<i32>| b.merge(e));
     }
 }

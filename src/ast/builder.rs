@@ -11,7 +11,6 @@ pub trait Builder {
     fn eval_type(&self) -> Type;
 }
 
-
 /// Appender appends input item to a list.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AppenderType {
