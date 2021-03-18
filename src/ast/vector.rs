@@ -35,7 +35,10 @@ impl std::fmt::Display for NewVector {
         use std::fmt::Write;
         write!(f, "NewVector<{}>", self.item_ty)?;
         f.write_char('(')?;
-        for e in &self.items {
+        for (i, e) in self.items.iter().enumerate() {
+            if i > 0 {
+                f.write_char(',')?;
+            }
             e.fmt(f)?;
         }
         f.write_char(')')

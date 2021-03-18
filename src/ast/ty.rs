@@ -1,4 +1,14 @@
 use super::*;
+use enum_dispatch::enum_dispatch;
+
+/// Enable type inference on any expression.
+///
+/// The type inference is executed on the program staging,
+/// before the code generation and compilation.
+#[enum_dispatch]
+pub trait TypeInference {
+    fn ty(&self) -> Type;
+}
 
 /// Type classifies each value and defines its behavior.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -20,8 +30,8 @@ pub enum Type {
     Dict(DictType),
     /// An ordered tuple.
     Tuple(TupleType),
-    /// A function with a list of arguments and return type.
-    Function(FunctionType),
+    /// A lambda with a list of arguments and return type.
+    Lambda(LambdaType),
     /// A mutable builder to append item to a list.
     Appender(AppenderType),
     /// A builder that constructs a scalar.
@@ -49,6 +59,18 @@ impl Type {
             | Type::F32
             | Type::F64
             | Type::String => true,
+            _ => false,
+        }
+    }
+
+    #[inline]
+    pub fn is_builder(&self) -> bool {
+        match self {
+            Type::Appender(_)
+            | Type::Merger(_)
+            | Type::DictMerger(_)
+            | Type::GroupMerger(_)
+            | Type::VecMerger(_) => true,
             _ => false,
         }
     }
@@ -254,17 +276,17 @@ impl Type {
     }
 
     #[inline]
-    pub fn function(self) -> FunctionType {
+    pub fn lambda(self) -> LambdaType {
         match self {
-            Type::Function(fk) => fk,
-            _ => panic!("{:?} is not function", self),
+            Type::Lambda(lk) => lk,
+            _ => panic!("{:?} is not lambda", self),
         }
     }
 
     #[inline]
-    pub fn is_function(&self) -> bool {
+    pub fn is_lambda(&self) -> bool {
         match self {
-            Type::Function(_) => true,
+            Type::Lambda(_) => true,
             _ => false,
         }
     }
@@ -301,6 +323,9 @@ impl Type {
     }
 
     /// Returns the item type for merge
+    ///
+    /// This method only returns valid type that can be merged
+    /// if self is builder type, otherwise it will panic.
     pub fn merge(self) -> Type {
         match self {
             Type::Appender(AppenderType { item_ty })
@@ -332,7 +357,7 @@ impl std::fmt::Display for Type {
             Type::Vector(v) => v.fmt(f),
             Type::Dict(d) => d.fmt(f),
             Type::Tuple(t) => t.fmt(f),
-            Type::Function(func) => func.fmt(f),
+            Type::Lambda(lmd) => lmd.fmt(f),
             Type::Appender(a) => a.fmt(f),
             Type::Merger(m) => m.fmt(f),
             Type::DictMerger(dm) => dm.fmt(f),
@@ -365,7 +390,7 @@ pub trait DynamicType {
 impl_dynamic_type!(VectorType, Type::Vector);
 impl_dynamic_type!(DictType, Type::Dict);
 impl_dynamic_type!(TupleType, Type::Tuple);
-impl_dynamic_type!(FunctionType, Type::Function);
+impl_dynamic_type!(LambdaType, Type::Lambda);
 impl_dynamic_type!(AppenderType, Type::Appender);
 impl_dynamic_type!(MergerType, Type::Merger);
 impl_dynamic_type!(DictMergerType, Type::DictMerger);

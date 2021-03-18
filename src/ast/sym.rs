@@ -1,22 +1,52 @@
-use std::rc::Rc;
+use super::{Builder, Expr, Merge, Type, TypeInference};
 
 /// Symbol represents a named variable.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Symbol {
-    pub(super) name: Rc<str>,
-    pub(super) id: i32,
+    name: String,
+    ty: Type,
+    id: u32,
 }
 
 impl Symbol {
-    pub fn unspecified() -> Self {
+    pub fn named<S: Into<String>>(name: S, ty: Type) -> Self {
         Symbol {
-            name: Rc::from("_"),
+            name: name.into(),
             id: 0,
+            ty,
         }
     }
 
-    pub fn new(name: Rc<str>, id: i32) -> Self {
-        Symbol { name, id }
+    pub fn unamed(ty: Type) -> Self {
+        Self::named("_", ty)
+    }
+}
+
+impl TypeInference for Symbol {
+    fn ty(&self) -> Type {
+        self.ty.clone()
+    }
+}
+
+impl Builder for Symbol {
+    fn merge<T>(self, item: T) -> Merge
+    where
+        T: Into<Expr>,
+    {
+        assert!(
+            self.ty().is_builder(),
+            "Non-bulder type[{:?}] on merge operation",
+            self.ty()
+        );
+        let value: Expr = item.into();
+        Merge {
+            builder: Box::new(Expr::Symbol(self)),
+            value: Box::new(value),
+        }
+    }
+
+    fn eval_type(&self) -> Type {
+        self.ty().eval()
     }
 }
 

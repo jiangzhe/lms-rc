@@ -29,11 +29,30 @@ impl<T> Var<T> {
             _marker: PhantomData,
         }
     }
+
+    /// Create a new symbol with specified type
+    ///
+    /// The type should be consistent with generic
+    /// type T.
+    /// This factory method is used on constructing
+    /// Function from input DSL.
+    fn symbol(sym: Symbol) -> Self {
+        Var {
+            expr: Expr::Symbol(sym),
+            _marker: PhantomData,
+        }
+    }
 }
 
 impl<T> From<Var<T>> for Expr {
     fn from(src: Var<T>) -> Self {
         src.expr
+    }
+}
+
+impl<T> TypeInference for Var<T> {
+    fn ty(&self) -> Type {
+        self.expr.ty()
     }
 }
 
@@ -53,12 +72,6 @@ impl Var<bool> {
             stringify!(BoolType)
         );
         Var::new(expr)
-    }
-}
-
-impl TypeInference for Var<bool> {
-    fn ty(&self) -> Type {
-        Type::Bool
     }
 }
 
@@ -107,19 +120,13 @@ impl Var<String> {
     }
 }
 
-impl TypeInference for Var<String> {
-    fn ty(&self) -> Type {
-        Type::String
-    }
-}
-
-impl_num_var!(u8, lit_u8, expr_u8, is_u8, Type::U8);
-impl_num_var!(u32, lit_u32, expr_u32, is_u32, Type::U32);
-impl_num_var!(i32, lit_i32, expr_i32, is_i32, Type::I32);
-impl_num_var!(u64, lit_u64, expr_u64, is_u64, Type::U64);
-impl_num_var!(i64, lit_i64, expr_i64, is_i64, Type::I64);
-impl_num_var!(f32, lit_f32, expr_f32, is_f32, Type::F32);
-impl_num_var!(f64, lit_f64, expr_f64, is_f64, Type::F64);
+impl_num_var!(u8, lit_u8, expr_u8, is_u8);
+impl_num_var!(u32, lit_u32, expr_u32, is_u32);
+impl_num_var!(i32, lit_i32, expr_i32, is_i32);
+impl_num_var!(u64, lit_u64, expr_u64, is_u64);
+impl_num_var!(i64, lit_i64, expr_i64, is_i64);
+impl_num_var!(f32, lit_f32, expr_f32, is_f32);
+impl_num_var!(f64, lit_f64, expr_f64, is_f64);
 
 impl_arith_for_var_num!(Add, Add<u8>, u8, add, +, as_u8, lit_u8, expr_u8, BinOp::add);
 impl_arith_for_var_num!(Sub, Sub<u8>, u8, sub, -, as_u8, lit_u8, expr_u8, BinOp::sub);
@@ -211,17 +218,12 @@ impl Var<AppenderType> {
         T: Into<Expr>,
     {
         let m = match self.expr {
-            Expr::NewAppender(appender) => appender.merge(item),
-            Expr::Merge(merge) => merge.merge(item),
+            Expr::NewAppender(a) => a.merge(item),
+            Expr::Merge(m) => m.merge(item),
+            Expr::Symbol(sym) => sym.merge(item),
             _ => unreachable!(),
         };
         Var::new(Expr::Merge(m))
-    }
-}
-
-impl TypeInference for Var<AppenderType> {
-    fn ty(&self) -> Type {
-        self.expr.ty()
     }
 }
 
@@ -271,17 +273,12 @@ impl Var<MergerType> {
         T: Into<Expr>,
     {
         let m = match self.expr {
-            Expr::NewMerger(merger) => merger.merge(item),
-            Expr::Merge(merge) => merge.merge(item),
+            Expr::NewMerger(m) => m.merge(item),
+            Expr::Merge(m) => m.merge(item),
+            Expr::Symbol(sym) => sym.merge(item),
             _ => unreachable!(),
         };
         Var::new(Expr::Merge(m))
-    }
-}
-
-impl TypeInference for Var<MergerType> {
-    fn ty(&self) -> Type {
-        self.expr.ty()
     }
 }
 
@@ -308,11 +305,101 @@ impl Var<DictMergerType> {
         T: Into<Expr>,
     {
         let m = match self.expr {
-            Expr::NewDictMerger(dictmerger) => dictmerger.merge(item),
-            Expr::Merge(merge) => merge.merge(item),
+            Expr::NewDictMerger(dm) => dm.merge(item),
+            Expr::Merge(m) => m.merge(item),
+            Expr::Symbol(sym) => sym.merge(item),
             _ => unreachable!(),
         };
         Var::new(Expr::Merge(m))
+    }
+}
+
+impl Var<GroupMergerType> {
+    /// Create a new var of groupmerger with given key, value type.
+    pub fn groupmerger(key_ty: Type, value_ty: Type) -> Self {
+        Var::new(Expr::NewGroupMerger(NewGroupMerger { key_ty, value_ty }))
+    }
+
+    /// Evaluate the groupmerger and returns a var of dict.
+    pub fn eval(self) -> Var<DictType> {
+        let result = Eval(Box::new(self.expr));
+        assert!(result.ty().is_dict());
+        Var::new(Expr::Eval(result))
+    }
+
+    /// Merge the groupmerger with given item and return the updated groupmerger.
+    pub fn merge<T>(self, item: T) -> Self
+    where
+        T: Into<Expr>,
+    {
+        let m = match self.expr {
+            Expr::NewGroupMerger(gm) => gm.merge(item),
+            Expr::Merge(m) => m.merge(item),
+            Expr::Symbol(sym) => sym.merge(item),
+            _ => unreachable!(),
+        };
+        Var::new(Expr::Merge(m))
+    }
+}
+
+impl Var<VecMergerType> {
+    /// Create a new var of vecmerger with given item type and operator.
+    pub fn vecmerger(item_ty: Type, op_ty: BinOpType) -> Self {
+        Var::new(Expr::NewVecMerger(NewVecMerger { item_ty, op_ty }))
+    }
+
+    /// Evaluate the vecmerger and returns a var of vector.
+    pub fn eval(self) -> Var<VectorType> {
+        let result = Eval(Box::new(self.expr));
+        assert!(result.ty().is_vector());
+        Var::new(Expr::Eval(result))
+    }
+
+    pub fn merge<T>(self, item: T) -> Self
+    where
+        T: Into<Expr>,
+    {
+        let m = match self.expr {
+            Expr::NewVecMerger(vm) => vm.merge(item),
+            Expr::Merge(m) => m.merge(item),
+            Expr::Symbol(sym) => sym.merge(item),
+            _ => unreachable!(),
+        };
+        Var::new(Expr::Merge(m))
+    }
+
+    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
+    where
+        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
+        F: 'static,
+    {
+        let iter = Iter {
+            data: Box::new(it.expr),
+            start: None,
+            end: None,
+        };
+
+        let sym_b = Symbol::named("b", self.ty());
+        let sym_i = Symbol::named("i", Type::U64);
+        let sym_e = Symbol::named("e", self.ty().merge());
+
+        let b = Var::<VecMergerType>::symbol(sym_b.clone());
+        let i = Var::<u64>::symbol(sym_i.clone());
+        let e = Var::<T>::symbol(sym_e.clone());
+
+        let body = f(b, i, e);
+
+        let func = Lambda {
+            params: vec![sym_b, sym_i, sym_e],
+            body: Box::new(body.expr),
+        };
+
+        let pfor = For {
+            iters: vec![iter],
+            builder: Box::new(self.expr),
+            func: Box::new(Expr::Lambda(func)),
+        };
+        Var::new(Expr::For(pfor))
     }
 }
 
@@ -334,8 +421,8 @@ impl Var<VectorType> {
 
     pub fn pfor<B, T, F>(self, builder: Var<B>, f: F) -> For
     where
-        T: Into<Expr>,
-        F: FnOnce(Var<B>, Var<u64>, T) -> Var<B>,
+        // T: Into<Expr>,
+        F: FnOnce(Var<B>, Var<u64>, Var<T>) -> Var<B>,
         F: 'static,
     {
         let iter = Iter {
@@ -344,17 +431,26 @@ impl Var<VectorType> {
             end: None,
         };
 
-        // function params
-        // let p1 = Var::new()
+        let sym_b = Symbol::named("b", builder.ty());
+        let sym_i = Symbol::named("i", Type::U64);
+        let sym_e = Symbol::named("e", builder.ty().merge());
 
-        // // function body
+        let b = Var::<B>::symbol(sym_b.clone());
+        let i = Var::<u64>::symbol(sym_i.clone());
+        let e = Var::<T>::symbol(sym_e.clone());
 
-        // For{
-        //     iters: vec![iter],
-        //     builder: Box::new(builder.expr),
-        //     func:
-        // }
-        todo!()
+        let body = f(b, i, e);
+
+        let func = Lambda {
+            params: vec![sym_b, sym_i, sym_e],
+            body: Box::new(body.expr),
+        };
+
+        For {
+            iters: vec![iter],
+            builder: Box::new(builder.expr),
+            func: Box::new(Expr::Lambda(func)),
+        }
     }
 }
 
@@ -406,6 +502,7 @@ mod tests {
     fn test_var_vector() {
         let v1 = Var::vector(vec![1, 2, 3]);
         let m1 = Var::merger(Type::I32, BinOpType::Add);
-        let f1 = v1.pfor(m1, |b, i, e: Var<i32>| b.merge(e));
+        let f1 = v1.pfor(m1, |b, _i, e: Var<i32>| b.merge(e));
+        println!("{}", f1);
     }
 }

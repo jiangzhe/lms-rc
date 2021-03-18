@@ -1,5 +1,5 @@
 macro_rules! impl_num_var {
-    ($ty:ty, $litf:ident, $exprf:ident, $checkf:ident, $typepath:path) => {
+    ($ty:ty, $litf:ident, $exprf:ident, $checkf:ident) => {
         impl Var<$ty> {
             /// Create a new var with literal.
             pub fn $litf(value: $ty) -> Self {
@@ -26,12 +26,6 @@ macro_rules! impl_num_var {
             /// Non-equality check on two vars, and returns a bool var
             pub fn ne(self, other: Self) -> Var<bool> {
                 Var::new(Expr::BinOp(BinOp::ne(self.expr, other.expr)))
-            }
-        }
-
-        impl TypeInference for Var<$ty> {
-            fn ty(&self) -> Type {
-                $typepath
             }
         }
     };

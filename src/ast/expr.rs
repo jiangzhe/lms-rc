@@ -7,6 +7,8 @@ use enum_dispatch::enum_dispatch;
 pub enum Expr {
     /// A literal expression.
     Literal(Literal),
+    /// An identifier.
+    Symbol(Symbol),
     /// Broadcasts a scalar into a vector.
     Broadcast(Broadcast),
     /// Applies a binary operator to child expressions.
@@ -51,6 +53,7 @@ impl std::fmt::Display for Expr {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Expr::Literal(lit) => lit.fmt(f),
+            Expr::Symbol(sym) => sym.fmt(f),
             Expr::Broadcast(bc) => bc.fmt(f),
             Expr::BinOp(bo) => bo.fmt(f),
             Expr::UnaryOp(uo) => uo.fmt(f),

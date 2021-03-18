@@ -1,3 +1,15 @@
+//! AST(Abstract Syntax Tree) module defines all AST types.
+//!
+//! There is no front-end script parsing, the AST is designed to be
+//! written directly using Rust.
+//! There are serveral benifits:
+//! 1. No parsing, better performance, fewer mistakes.
+//!    Static type check can prevent user from invoking methods on
+//!    wrong instance.
+//! 2. High-level abstraction can be built easier, especially for
+//!    specific domains like relational algebric.
+//! 3. Staging can integrate some static data into the AST and
+//!    build a simpler program to run.
 #[macro_use]
 mod macros;
 mod bin_op;
@@ -7,7 +19,6 @@ mod cast;
 mod dict;
 mod eval;
 mod expr;
-mod function;
 mod get_field;
 mod ifte;
 mod iter;
@@ -16,7 +27,6 @@ mod length;
 mod lit;
 mod lookup;
 mod merge;
-mod param;
 mod pfor;
 mod sym;
 mod tuple;
@@ -33,32 +43,20 @@ pub use builder::{
 };
 pub use cast::Cast;
 pub use dict::{DictType, NewDict};
-use enum_dispatch::enum_dispatch;
 pub use eval::Eval;
 pub use expr::Expr;
-pub use function::FunctionType;
 pub use get_field::GetField;
 pub use ifte::IfThenElse;
 pub use iter::Iter;
-pub use lambda::Lambda;
+pub use lambda::{Lambda, LambdaType};
 pub use length::Length;
 pub use lit::Literal;
 pub use lookup::Lookup;
 pub use merge::Merge;
-pub use param::Parameter;
 pub use pfor::For;
 pub use sym::Symbol;
 pub use tuple::TupleType;
-pub use ty::{DynamicType, StaticType, Type};
+pub use ty::{DynamicType, StaticType, Type, TypeInference};
 pub use unary_op::{UnaryOp, UnaryOpType};
 pub use var::Var;
 pub use vector::{NewVector, VectorType};
-
-/// Enable type inference on any expression.
-///
-/// The type inference is executed on the program staging,
-/// before the code generation and compilation.
-#[enum_dispatch]
-pub trait TypeInference {
-    fn ty(&self) -> Type;
-}
