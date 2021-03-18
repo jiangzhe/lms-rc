@@ -3,22 +3,30 @@ use super::{Builder, Expr, Merge, Type, TypeInference};
 /// Symbol represents a named variable.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Symbol {
-    name: String,
-    ty: Type,
-    id: u32,
+    pub(crate) name: String,
+    pub(crate) ty: Type,
+    pub(crate) id: u32,
 }
 
 impl Symbol {
+
+    #[inline]
     pub fn named<S: Into<String>>(name: S, ty: Type) -> Self {
-        Symbol {
-            name: name.into(),
-            id: 0,
-            ty,
-        }
+        Self::new(name, ty, 0)
     }
 
+    #[inline]
     pub fn unamed(ty: Type) -> Self {
         Self::named("_", ty)
+    }
+
+    #[inline]
+    pub fn new<S: Into<String>>(name: S, ty: Type, id: u32) -> Self {
+        Symbol{
+            name: name.into(),
+            ty,
+            id,
+        }
     }
 }
 

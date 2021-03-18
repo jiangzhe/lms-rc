@@ -32,6 +32,7 @@ mod sym;
 mod tuple;
 mod ty;
 mod unary_op;
+mod uniquify;
 mod var;
 mod vector;
 
