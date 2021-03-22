@@ -1,4 +1,5 @@
 use super::*;
+use crate::Result;
 use enum_dispatch::enum_dispatch;
 
 /// Expr represents an expression tree.
@@ -47,6 +48,70 @@ pub enum Expr {
     NewVecMerger(NewVecMerger),
     /// Consume a builder and return its result
     Eval(Eval),
+}
+
+impl Expr {
+
+    /// Apply given transformer to all children.
+    pub fn apply_to_children<F>(&mut self, f: &mut F) -> Result<()> 
+    where
+        F: Transformer<Expr> + Transformer<Symbol>,
+    {
+        match self {
+            Expr::Broadcast(bc ) => f.transform(bc.value.as_mut())?,
+            Expr::BinOp(BinOp{left, right, ..}) => {
+                f.transform(left.as_mut())?;
+                f.transform(right.as_mut())?;
+            }
+            Expr::UnaryOp(UnaryOp{value, ..})  => f.transform(value.as_mut())?,
+            Expr::Cast(Cast{value, ..}) => f.transform(value.as_mut())?,
+            Expr::GetField(GetField{tuple, ..}) => f.transform(tuple.as_mut())?,
+            Expr::Length(Length(value)) => f.transform(value.as_mut())?,
+            Expr::Lookup(Lookup{data, index}) => {
+                f.transform(data.as_mut())?;
+                f.transform(index.as_mut())?;
+            }
+            Expr::IfThenElse(IfThenElse { i, t, e }) => {
+                f.transform(i.as_mut())?;
+                f.transform(t.as_mut())?;
+                f.transform(e.as_mut())?;
+            }
+            Expr::For(For { iters, builder, func }) => {
+                for it in iters {
+                    f.transform(it.data.as_mut())?;
+                    if let Some(start) = it.start.as_mut() {
+                        f.transform(start.as_mut())?;
+                    }
+                    if let Some(end) = it.end.as_mut() {
+                        f.transform(end.as_mut())?;
+                    }
+                }
+                f.transform(builder.as_mut())?;
+                f.transform(func.as_mut())?;
+            }
+            Expr::Merge(Merge { builder, value }) => {
+                f.transform(builder.as_mut())?;
+                f.transform(value.as_mut())?;
+            }
+            Expr::Lambda(Lambda { params, body }) => {
+                for p in params {
+                    f.transform(p)?;
+                }
+                f.transform(body.as_mut())?;
+            }
+            Expr::NewVector(NewVector { items, .. }) => {
+                for it in items {
+                    f.transform(it)?;
+                }
+            }
+            Expr::Eval(Eval(value)) => f.transform(value.as_mut())?,
+            Expr::Symbol(_) | Expr::Literal(_) |Expr::NewDict(_) | 
+            Expr::NewAppender(_) | Expr::NewMerger(_) | Expr::NewDictMerger(_) | 
+            Expr::NewGroupMerger(_) | Expr::NewVecMerger(_) => (),
+        }
+
+        Ok(())
+    }
 }
 
 impl std::fmt::Display for Expr {
