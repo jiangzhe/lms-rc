@@ -1,4 +1,4 @@
-use super::{Expr, Type, TypeInference};
+use super::{Expr, Type, TypeInference, U64};
 
 /// Get length of a vector.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -6,7 +6,7 @@ pub struct Length(pub(super) Box<Expr>);
 
 impl TypeInference for Length {
     fn ty(&self) -> Type {
-        Type::U64
+        Type::U64(U64)
     }
 }
 

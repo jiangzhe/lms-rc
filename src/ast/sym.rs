@@ -9,22 +9,21 @@ pub struct Symbol {
 }
 
 impl Symbol {
-
     #[inline]
-    pub fn named<S: Into<String>>(name: S, ty: Type) -> Self {
+    pub fn named<S: Into<String>, T: Into<Type>>(name: S, ty: T) -> Self {
         Self::new(name, ty, 0)
     }
 
     #[inline]
-    pub fn unamed(ty: Type) -> Self {
+    pub fn unamed<T: Into<Type>>(ty: T) -> Self {
         Self::named("_", ty)
     }
 
     #[inline]
-    pub fn new<S: Into<String>>(name: S, ty: Type, id: u32) -> Self {
-        Symbol{
+    pub fn new<S: Into<String>, T: Into<Type>>(name: S, ty: T, id: u32) -> Self {
+        Symbol {
             name: name.into(),
-            ty,
+            ty: ty.into(),
             id,
         }
     }

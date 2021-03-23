@@ -1,4 +1,4 @@
-use super::{Expr, Type, TypeInference};
+use super::{Bool, Expr, Str, Type, TypeInference, F32, F64, I32, I64, U32, U64, U8};
 
 /// Literal represents constant values already known at compile time
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
@@ -112,15 +112,15 @@ impl From<f64> for Literal {
 impl TypeInference for Literal {
     fn ty(&self) -> Type {
         match self {
-            Literal::Bool(_) => Type::Bool,
-            Literal::U8(_) => Type::U8,
-            Literal::I32(_) => Type::I32,
-            Literal::I64(_) => Type::I64,
-            Literal::U32(_) => Type::U32,
-            Literal::U64(_) => Type::U64,
-            Literal::F32(_) => Type::F32,
-            Literal::F64(_) => Type::F64,
-            Literal::String(_) => Type::String,
+            Literal::Bool(_) => Type::Bool(Bool),
+            Literal::U8(_) => Type::U8(U8),
+            Literal::I32(_) => Type::I32(I32),
+            Literal::I64(_) => Type::I64(I64),
+            Literal::U32(_) => Type::U32(U32),
+            Literal::U64(_) => Type::U64(U64),
+            Literal::F32(_) => Type::F32(F32),
+            Literal::F64(_) => Type::F64(F64),
+            Literal::String(_) => Type::Str(Str),
         }
     }
 }

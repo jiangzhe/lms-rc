@@ -1,5 +1,5 @@
+use super::{Expr, Lambda, Symbol, Transformer};
 use crate::{Error, Result};
-use super::{Expr, Transformer, Symbol, Lambda};
 use std::collections::HashMap;
 
 struct SymbolUniquifier {
@@ -10,7 +10,7 @@ struct SymbolUniquifier {
 impl Transformer<Expr> for SymbolUniquifier {
     fn transform(&mut self, expr: &mut Expr) -> Result<()> {
         match expr {
-            Expr::Lambda(Lambda{
+            Expr::Lambda(Lambda {
                 params,
                 ref mut body,
             }) => {
@@ -53,7 +53,10 @@ impl SymbolUniquifier {
     /// Original symbol should be kept for removal later.
     fn push(&mut self, sym: &Symbol) {
         let stack_entry = self.stack.entry(sym.clone()).or_insert_with(|| vec![]);
-        let next_entry = self.next_unique_id.entry(sym.name.to_owned()).or_insert_with(|| 0);
+        let next_entry = self
+            .next_unique_id
+            .entry(sym.name.to_owned())
+            .or_insert_with(|| 0);
         if sym.id > *next_entry {
             *next_entry = sym.id
         } else {
@@ -78,8 +81,14 @@ impl SymbolUniquifier {
     /// Get the symbol in current scope for given symbol.
     /// The returned symbol has unique id within current scope.
     fn get(&mut self, sym: &Symbol) -> Result<Symbol> {
-        let stack = self.stack.get(&sym).ok_or_else(|| compile_err!("Undefined symbol {}", sym))?;
-        let id = stack.last().cloned().ok_or_else(|| compile_err!("Stack of symbol {} is empty", sym))?;
+        let stack = self
+            .stack
+            .get(&sym)
+            .ok_or_else(|| compile_err!("Undefined symbol {}", sym))?;
+        let id = stack
+            .last()
+            .cloned()
+            .ok_or_else(|| compile_err!("Stack of symbol {} is empty", sym))?;
         Ok(Symbol::new(&sym.name, sym.ty.clone(), id))
     }
 }
@@ -93,16 +102,17 @@ mod tests {
 
     #[test]
     fn test_uniquify() {
-        let v2 = Var::merger(Type::I32, BinOpType::Max);
-        let v3 = Var::vector(vec![1,2,3]);
-        let v4 = v2.pfor(v3.clone(), |b, _, e: Var<i32>| b.merge(e)).eval_static::<i32>();
-        let v5 = Var::merger(Type::I32, BinOpType::Min);
-        let v6 = v5.pfor(v3, |b, _, e: Var<i32>| b.merge(e)).eval_static::<i32>();
+        let v2 = Var::merger(I32, BinOpType::Max);
+        let v3 = Var::vector(vec![1, 2, 3]);
+        let v4 = v2
+            .pfor(v3.clone(), |b, _, e: Var<i32>| b.merge(e))
+            .eval(I32);
+        let v5 = Var::merger(I32, BinOpType::Min);
+        let v6 = v5.pfor(v3, |b, _, e: Var<i32>| b.merge(e)).eval(I32);
         let mut v7: Expr = (v4 + v6).into();
         println!("{}", v7);
         let mut uniq = SymbolUniquifier::new();
         uniq.transform(&mut v7).unwrap();
         println!("{}", v7);
-
     }
 }

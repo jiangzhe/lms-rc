@@ -51,23 +51,22 @@ pub enum Expr {
 }
 
 impl Expr {
-
     /// Apply given transformer to all children.
-    pub fn apply_to_children<F>(&mut self, f: &mut F) -> Result<()> 
+    pub fn apply_to_children<F>(&mut self, f: &mut F) -> Result<()>
     where
         F: Transformer<Expr> + Transformer<Symbol>,
     {
         match self {
-            Expr::Broadcast(bc ) => f.transform(bc.value.as_mut())?,
-            Expr::BinOp(BinOp{left, right, ..}) => {
+            Expr::Broadcast(bc) => f.transform(bc.value.as_mut())?,
+            Expr::BinOp(BinOp { left, right, .. }) => {
                 f.transform(left.as_mut())?;
                 f.transform(right.as_mut())?;
             }
-            Expr::UnaryOp(UnaryOp{value, ..})  => f.transform(value.as_mut())?,
-            Expr::Cast(Cast{value, ..}) => f.transform(value.as_mut())?,
-            Expr::GetField(GetField{tuple, ..}) => f.transform(tuple.as_mut())?,
+            Expr::UnaryOp(UnaryOp { value, .. }) => f.transform(value.as_mut())?,
+            Expr::Cast(Cast { value, .. }) => f.transform(value.as_mut())?,
+            Expr::GetField(GetField { tuple, .. }) => f.transform(tuple.as_mut())?,
             Expr::Length(Length(value)) => f.transform(value.as_mut())?,
-            Expr::Lookup(Lookup{data, index}) => {
+            Expr::Lookup(Lookup { data, index }) => {
                 f.transform(data.as_mut())?;
                 f.transform(index.as_mut())?;
             }
@@ -76,7 +75,11 @@ impl Expr {
                 f.transform(t.as_mut())?;
                 f.transform(e.as_mut())?;
             }
-            Expr::For(For { iters, builder, func }) => {
+            Expr::For(For {
+                iters,
+                builder,
+                func,
+            }) => {
                 for it in iters {
                     f.transform(it.data.as_mut())?;
                     if let Some(start) = it.start.as_mut() {
@@ -105,9 +108,14 @@ impl Expr {
                 }
             }
             Expr::Eval(Eval(value)) => f.transform(value.as_mut())?,
-            Expr::Symbol(_) | Expr::Literal(_) |Expr::NewDict(_) | 
-            Expr::NewAppender(_) | Expr::NewMerger(_) | Expr::NewDictMerger(_) | 
-            Expr::NewGroupMerger(_) | Expr::NewVecMerger(_) => (),
+            Expr::Symbol(_)
+            | Expr::Literal(_)
+            | Expr::NewDict(_)
+            | Expr::NewAppender(_)
+            | Expr::NewMerger(_)
+            | Expr::NewDictMerger(_)
+            | Expr::NewGroupMerger(_)
+            | Expr::NewVecMerger(_) => (),
         }
 
         Ok(())

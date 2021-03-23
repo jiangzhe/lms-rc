@@ -15,15 +15,15 @@ pub trait TypeInference {
 pub enum Type {
     /// A scalar.
     // Scalar(ScalarType),
-    Bool,
-    U8,
-    U32,
-    I32,
-    U64,
-    I64,
-    F32,
-    F64,
-    String,
+    Bool(Bool),
+    U8(U8),
+    U32(U32),
+    I32(I32),
+    U64(U64),
+    I64(I64),
+    F32(F32),
+    F64(F64),
+    Str(Str),
     /// A variable-length vector.
     Vector(VectorType),
     /// A dictionary mapping keys to values.
@@ -50,15 +50,15 @@ impl Type {
     #[inline]
     pub fn is_scalar(&self) -> bool {
         match self {
-            Type::Bool
-            | Type::U8
-            | Type::U32
-            | Type::I32
-            | Type::U64
-            | Type::I64
-            | Type::F32
-            | Type::F64
-            | Type::String => true,
+            Type::Bool(_)
+            | Type::U8(_)
+            | Type::U32(_)
+            | Type::I32(_)
+            | Type::U64(_)
+            | Type::I64(_)
+            | Type::F32(_)
+            | Type::F64(_)
+            | Type::Str(_) => true,
             _ => false,
         }
     }
@@ -78,7 +78,7 @@ impl Type {
     #[inline]
     pub fn is_bool(&self) -> bool {
         match self {
-            Type::Bool => true,
+            Type::Bool(_) => true,
             _ => false,
         }
     }
@@ -86,7 +86,7 @@ impl Type {
     #[inline]
     pub fn is_u8(&self) -> bool {
         match self {
-            Type::U8 => true,
+            Type::U8(_) => true,
             _ => false,
         }
     }
@@ -94,7 +94,7 @@ impl Type {
     #[inline]
     pub fn is_u32(&self) -> bool {
         match self {
-            Type::U32 => true,
+            Type::U32(_) => true,
             _ => false,
         }
     }
@@ -102,7 +102,7 @@ impl Type {
     #[inline]
     pub fn is_i32(&self) -> bool {
         match self {
-            Type::I32 => true,
+            Type::I32(_) => true,
             _ => false,
         }
     }
@@ -110,7 +110,7 @@ impl Type {
     #[inline]
     pub fn is_u64(&self) -> bool {
         match self {
-            Type::U64 => true,
+            Type::U64(_) => true,
             _ => false,
         }
     }
@@ -118,7 +118,7 @@ impl Type {
     #[inline]
     pub fn is_i64(&self) -> bool {
         match self {
-            Type::I64 => true,
+            Type::I64(_) => true,
             _ => false,
         }
     }
@@ -126,7 +126,7 @@ impl Type {
     #[inline]
     pub fn is_f32(&self) -> bool {
         match self {
-            Type::F32 => true,
+            Type::F32(_) => true,
             _ => false,
         }
     }
@@ -134,15 +134,15 @@ impl Type {
     #[inline]
     pub fn is_f64(&self) -> bool {
         match self {
-            Type::F64 => true,
+            Type::F64(_) => true,
             _ => false,
         }
     }
 
     #[inline]
-    pub fn is_string(&self) -> bool {
+    pub fn is_str(&self) -> bool {
         match self {
-            Type::String => true,
+            Type::Str(_) => true,
             _ => false,
         }
     }
@@ -342,18 +342,24 @@ impl Type {
     }
 }
 
+impl TypeInference for Type {
+    fn ty(&self) -> Type {
+        self.clone()
+    }
+}
+
 impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Type::Bool => f.write_str("Bool"),
-            Type::U8 => f.write_str("U8"),
-            Type::U32 => f.write_str("U32"),
-            Type::I32 => f.write_str("I32"),
-            Type::U64 => f.write_str("U64"),
-            Type::I64 => f.write_str("I64"),
-            Type::F32 => f.write_str("F32"),
-            Type::F64 => f.write_str("F64"),
-            Type::String => f.write_str("String"),
+            Type::Bool(_) => f.write_str("Bool"),
+            Type::U8(_) => f.write_str("U8"),
+            Type::U32(_) => f.write_str("U32"),
+            Type::I32(_) => f.write_str("I32"),
+            Type::U64(_) => f.write_str("U64"),
+            Type::I64(_) => f.write_str("I64"),
+            Type::F32(_) => f.write_str("F32"),
+            Type::F64(_) => f.write_str("F64"),
+            Type::Str(_) => f.write_str("Str"),
             Type::Vector(v) => v.fmt(f),
             Type::Dict(d) => d.fmt(f),
             Type::Tuple(t) => t.fmt(f),
@@ -368,31 +374,56 @@ impl std::fmt::Display for Type {
     }
 }
 
-/// Base trait for static type information
-pub trait StaticType {
-    fn ty() -> Type;
-}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Bool {}
+pub const Bool: Bool = Bool {};
 
-impl_static_type!(u8, Type::U8);
-impl_static_type!(u32, Type::U32);
-impl_static_type!(i32, Type::I32);
-impl_static_type!(u64, Type::U64);
-impl_static_type!(i64, Type::I64);
-impl_static_type!(f32, Type::F32);
-impl_static_type!(f64, Type::F64);
-impl_static_type!(String, Type::String);
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct U8 {}
+pub const U8: U8 = U8 {};
 
-/// Base trait for dynamic type information
-pub trait DynamicType {
-    fn ty(self) -> Type;
-}
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct U32 {}
+pub const U32: U32 = U32 {};
 
-impl_dynamic_type!(VectorType, Type::Vector);
-impl_dynamic_type!(DictType, Type::Dict);
-impl_dynamic_type!(TupleType, Type::Tuple);
-impl_dynamic_type!(LambdaType, Type::Lambda);
-impl_dynamic_type!(AppenderType, Type::Appender);
-impl_dynamic_type!(MergerType, Type::Merger);
-impl_dynamic_type!(DictMergerType, Type::DictMerger);
-impl_dynamic_type!(GroupMergerType, Type::GroupMerger);
-impl_dynamic_type!(VecMergerType, Type::VecMerger);
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct I32 {}
+pub const I32: I32 = I32 {};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct U64 {}
+pub const U64: U64 = U64 {};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct I64 {}
+pub const I64: I64 = I64 {};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct F32 {}
+pub const F32: F32 = F32 {};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct F64 {}
+pub const F64: F64 = F64 {};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Str {}
+pub const Str: Str = Str {};
+
+impl_from_for_type!(U8, Type::U8);
+impl_from_for_type!(U32, Type::U32);
+impl_from_for_type!(I32, Type::I32);
+impl_from_for_type!(U64, Type::U64);
+impl_from_for_type!(I64, Type::I64);
+impl_from_for_type!(F32, Type::F32);
+impl_from_for_type!(F64, Type::F64);
+impl_from_for_type!(Str, Type::Str);
+
+/// Marker trait for builder
+pub trait BuilderType {}
+
+impl BuilderType for AppenderType {}
+impl BuilderType for MergerType {}
+impl BuilderType for DictMergerType {}
+impl BuilderType for GroupMergerType {}
+impl BuilderType for VecMergerType {}

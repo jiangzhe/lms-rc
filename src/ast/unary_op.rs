@@ -1,4 +1,4 @@
-use super::{Expr, Type, TypeInference};
+use super::{Bool, Expr, Type, TypeInference};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum UnaryOpType {
@@ -32,10 +32,7 @@ pub struct UnaryOp {
 
 impl UnaryOp {
     pub fn not(value: Expr) -> Self {
-        assert!(
-            value.ty() == Type::Bool,
-            "incompatible type on Not operator"
-        );
+        assert!(value.ty().is_bool(), "incompatible type on Not operator");
         UnaryOp {
             op_ty: UnaryOpType::Not,
             value: Box::new(value),
@@ -45,7 +42,7 @@ impl UnaryOp {
     pub fn neg(value: Expr) -> Self {
         let ty = value.ty();
         assert!(
-            ty == Type::I32 || ty == Type::I64,
+            ty.is_i32() || ty.is_i64(),
             "incompatible type on Neg operator"
         );
         UnaryOp {
@@ -58,7 +55,7 @@ impl UnaryOp {
 impl TypeInference for UnaryOp {
     fn ty(&self) -> Type {
         match self.op_ty {
-            UnaryOpType::Not => Type::Bool,
+            UnaryOpType::Not => Type::Bool(Bool),
             UnaryOpType::Neg => self.value.ty(),
             _ => todo!(),
         }

@@ -1,4 +1,4 @@
-use super::{Expr, Type, TypeInference};
+use super::{Bool, Expr, Type, TypeInference};
 
 /// Types of binary operation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -94,7 +94,7 @@ impl TypeInference for BinOp {
             | BinOpType::GreaterThan
             | BinOpType::GreaterThanOrEqual
             | BinOpType::LogicalAnd
-            | BinOpType::LogicalOr => Type::Bool,
+            | BinOpType::LogicalOr => Type::Bool(Bool),
             // any other operator, infer type of left operand
             _ => self.left.ty(),
         }

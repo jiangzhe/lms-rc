@@ -1,8 +1,8 @@
 macro_rules! impl_num_var {
-    ($ty:ty, $litf:ident, $exprf:ident, $checkf:ident) => {
+    ($ty:ty, $rty:ty, $litf:ident, $exprf:ident, $checkf:ident) => {
         impl Var<$ty> {
             /// Create a new var with literal.
-            pub fn $litf(value: $ty) -> Self {
+            pub fn $litf(value: $rty) -> Self {
                 Var::new(Expr::Literal(value.into()))
             }
 
@@ -62,8 +62,8 @@ macro_rules! impl_from_for_type {
 }
 
 macro_rules! impl_arith_for_var_num {
-    ($opty:ty, $opgty:ty, $builtinty:ty, $opf:ident, $op:tt, $asf:ident, $litf:ident, $exprf:ident, $binopf:path) => {
-        impl $opty for Var<$builtinty> {
+    ($opty:ty, $opgty:ty, $tty:ty, $builtinty:ty, $opf:ident, $op:tt, $asf:ident, $litf:ident, $exprf:ident, $binopf:path) => {
+        impl $opty for Var<$tty> {
             type Output = Self;
 
             fn $opf(self, other: Self) -> Self {
@@ -79,7 +79,7 @@ macro_rules! impl_arith_for_var_num {
             }
         }
 
-        impl $opgty for Var<$builtinty> {
+        impl $opgty for Var<$tty> {
             type Output = Self;
 
             fn $opf(self, other: $builtinty) -> Self {
@@ -98,20 +98,10 @@ macro_rules! impl_arith_for_var_num {
     }
 }
 
-macro_rules! impl_static_type {
-    ($ty:ty, $path:path) => {
-        impl StaticType for $ty {
-            fn ty() -> Type {
-                $path
-            }
-        }
-    };
-}
-
-macro_rules! impl_dynamic_type {
-    ($ty:ty, $path:path) => {
-        impl DynamicType for $ty {
-            fn ty(self) -> Type {
+macro_rules! impl_into_type {
+    ($ty: ty, $path:path) => {
+        impl Into<Type> for $ty {
+            fn into(self) -> Type {
                 $path(self)
             }
         }

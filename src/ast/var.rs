@@ -56,7 +56,7 @@ impl<T> TypeInference for Var<T> {
     }
 }
 
-impl Var<bool> {
+impl Var<Bool> {
     /// Create a new var with a literal.
     pub fn lit_bool(value: bool) -> Self {
         Var::new(Expr::Literal(value.into()))
@@ -75,7 +75,7 @@ impl Var<bool> {
     }
 }
 
-impl Not for Var<bool> {
+impl Not for Var<Bool> {
     type Output = Self;
 
     fn not(self) -> Self::Output {
@@ -91,7 +91,7 @@ impl Not for Var<bool> {
     }
 }
 
-impl Var<String> {
+impl Var<Str> {
     /// Create a new var with a literal.
     pub fn lit_string(value: String) -> Self {
         Var::new(Expr::Literal(value.into()))
@@ -101,7 +101,7 @@ impl Var<String> {
     #[inline]
     pub fn expr_string(expr: Expr) -> Self {
         assert!(
-            expr.ty().is_string(),
+            expr.ty().is_str(),
             "Imcompatible type {:?} to construct a {:?} var",
             expr.ty(),
             stringify!(StringType)
@@ -120,50 +120,50 @@ impl Var<String> {
     }
 }
 
-impl_num_var!(u8, lit_u8, expr_u8, is_u8);
-impl_num_var!(u32, lit_u32, expr_u32, is_u32);
-impl_num_var!(i32, lit_i32, expr_i32, is_i32);
-impl_num_var!(u64, lit_u64, expr_u64, is_u64);
-impl_num_var!(i64, lit_i64, expr_i64, is_i64);
-impl_num_var!(f32, lit_f32, expr_f32, is_f32);
-impl_num_var!(f64, lit_f64, expr_f64, is_f64);
+impl_num_var!(U8, u8, lit_u8, expr_u8, is_u8);
+impl_num_var!(U32, u32, lit_u32, expr_u32, is_u32);
+impl_num_var!(I32, i32, lit_i32, expr_i32, is_i32);
+impl_num_var!(U64, u64, lit_u64, expr_u64, is_u64);
+impl_num_var!(I64, i64, lit_i64, expr_i64, is_i64);
+impl_num_var!(F32, f32, lit_f32, expr_f32, is_f32);
+impl_num_var!(F64, f64, lit_f64, expr_f64, is_f64);
 
-impl_arith_for_var_num!(Add, Add<u8>, u8, add, +, as_u8, lit_u8, expr_u8, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<u8>, u8, sub, -, as_u8, lit_u8, expr_u8, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<u8>, u8, mul, *, as_u8, lit_u8, expr_u8, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<u8>, u8, div, /, as_u8, lit_u8, expr_u8, BinOp::div);
+impl_arith_for_var_num!(Add, Add<u8>, U8, u8, add, +, as_u8, lit_u8, expr_u8, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<u8>, U8, u8, sub, -, as_u8, lit_u8, expr_u8, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<u8>, U8, u8, mul, *, as_u8, lit_u8, expr_u8, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<u8>, U8, u8, div, /, as_u8, lit_u8, expr_u8, BinOp::div);
 
-impl_arith_for_var_num!(Add, Add<u32>, u32, add, +, as_u32, lit_u32, expr_u32, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<u32>, u32, sub, -, as_u32, lit_u32, expr_u32, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<u32>, u32, mul, *, as_u32, lit_u32, expr_u32, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<u32>, u32, div, /, as_u32, lit_u32, expr_u32, BinOp::div);
+impl_arith_for_var_num!(Add, Add<u32>, U32, u32, add, +, as_u32, lit_u32, expr_u32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<u32>, U32, u32, sub, -, as_u32, lit_u32, expr_u32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<u32>, U32, u32, mul, *, as_u32, lit_u32, expr_u32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<u32>, U32, u32, div, /, as_u32, lit_u32, expr_u32, BinOp::div);
 
-impl_arith_for_var_num!(Add, Add<i32>, i32, add, +, as_i32, lit_i32, expr_i32, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<i32>, i32, sub, -, as_i32, lit_i32, expr_i32, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<i32>, i32, mul, *, as_i32, lit_i32, expr_i32, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<i32>, i32, div, /, as_i32, lit_i32, expr_i32, BinOp::div);
+impl_arith_for_var_num!(Add, Add<i32>, I32, i32, add, +, as_i32, lit_i32, expr_i32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<i32>, I32, i32, sub, -, as_i32, lit_i32, expr_i32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<i32>, I32, i32, mul, *, as_i32, lit_i32, expr_i32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<i32>, I32, i32, div, /, as_i32, lit_i32, expr_i32, BinOp::div);
 
-impl_arith_for_var_num!(Add, Add<u64>, u64, add, +, as_u64, lit_u64, expr_u64, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<u64>, u64, sub, -, as_u64, lit_u64, expr_u64, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<u64>, u64, mul, *, as_u64, lit_u64, expr_u64, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<u64>, u64, div, /, as_u64, lit_u64, expr_u64, BinOp::div);
+impl_arith_for_var_num!(Add, Add<u64>, U64, u64, add, +, as_u64, lit_u64, expr_u64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<u64>, U64, u64, sub, -, as_u64, lit_u64, expr_u64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<u64>, U64, u64, mul, *, as_u64, lit_u64, expr_u64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<u64>, U64, u64, div, /, as_u64, lit_u64, expr_u64, BinOp::div);
 
-impl_arith_for_var_num!(Add, Add<i64>, i64, add, +, as_i64, lit_i64, expr_i64, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<i64>, i64, sub, -, as_i64, lit_i64, expr_i64, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<i64>, i64, mul, *, as_i64, lit_i64, expr_i64, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<i64>, i64, div, /, as_i64, lit_i64, expr_i64, BinOp::div);
+impl_arith_for_var_num!(Add, Add<i64>, I64, i64, add, +, as_i64, lit_i64, expr_i64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<i64>, I64, i64, sub, -, as_i64, lit_i64, expr_i64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<i64>, I64, i64, mul, *, as_i64, lit_i64, expr_i64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<i64>, I64, i64, div, /, as_i64, lit_i64, expr_i64, BinOp::div);
 
-impl_arith_for_var_num!(Add, Add<f32>, f32, add, +, as_f32, lit_f32, expr_f32, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<f32>, f32, sub, -, as_f32, lit_f32, expr_f32, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<f32>, f32, mul, *, as_f32, lit_f32, expr_f32, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<f32>, f32, div, /, as_f32, lit_f32, expr_f32, BinOp::div);
+impl_arith_for_var_num!(Add, Add<f32>, F32, f32, add, +, as_f32, lit_f32, expr_f32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<f32>, F32, f32, sub, -, as_f32, lit_f32, expr_f32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<f32>, F32, f32, mul, *, as_f32, lit_f32, expr_f32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<f32>, F32, f32, div, /, as_f32, lit_f32, expr_f32, BinOp::div);
 
-impl_arith_for_var_num!(Add, Add<f64>, f64, add, +, as_f64, lit_f64, expr_f64, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<f64>, f64, sub, -, as_f64, lit_f64, expr_f64, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<f64>, f64, mul, *, as_f64, lit_f64, expr_f64, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<f64>, f64, div, /, as_f64, lit_f64, expr_f64, BinOp::div);
+impl_arith_for_var_num!(Add, Add<f64>, F64, f64, add, +, as_f64, lit_f64, expr_f64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<f64>, F64, f64, sub, -, as_f64, lit_f64, expr_f64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<f64>, F64, f64, mul, *, as_f64, lit_f64, expr_f64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<f64>, F64, f64, div, /, as_f64, lit_f64, expr_f64, BinOp::div);
 
-impl Neg for Var<i32> {
+impl Neg for Var<I32> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -179,7 +179,7 @@ impl Neg for Var<i32> {
     }
 }
 
-impl Neg for Var<i64> {
+impl Neg for Var<I64> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -195,11 +195,52 @@ impl Neg for Var<i64> {
     }
 }
 
+impl<B: BuilderType> Var<B> {
+    /// pfor represents the parallel for expression of builder operation.
+    /// The provided lambda will be called in parallel with non-overlapping
+    /// items in iteration.
+    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
+    where
+        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
+        F: 'static,
+    {
+        let iter = Iter {
+            data: Box::new(it.expr),
+            start: None,
+            end: None,
+        };
+
+        let sym_b = Symbol::named("b", self.ty());
+        let sym_i = Symbol::named("i", U64);
+        let sym_e = Symbol::named("e", self.ty().merge());
+
+        let b = Var::<B>::symbol(sym_b.clone());
+        let i = Var::<u64>::symbol(sym_i.clone());
+        let e = Var::<T>::symbol(sym_e.clone());
+
+        let body = f(b, i, e);
+
+        let func = Lambda {
+            params: vec![sym_b, sym_i, sym_e],
+            body: Box::new(body.expr),
+        };
+
+        let pfor = For {
+            iters: vec![iter],
+            builder: Box::new(self.expr),
+            func: Box::new(Expr::Lambda(func)),
+        };
+        Var::new(Expr::For(pfor))
+    }
+}
+
 /// Implements methods on appender var.
 impl Var<AppenderType> {
     /// Create a new var of appender with given item type.
-    pub fn appender(item_ty: Type) -> Self {
-        Var::new(Expr::NewAppender(NewAppender { item_ty }))
+    pub fn appender<T: Into<Type>>(item_ty: T) -> Self {
+        Var::new(Expr::NewAppender(NewAppender {
+            item_ty: item_ty.into(),
+        }))
     }
 
     /// Evaluate the appender and returns a var of vector.
@@ -225,72 +266,22 @@ impl Var<AppenderType> {
         };
         Var::new(Expr::Merge(m))
     }
-
-    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
-    where
-        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
-        F: 'static,
-    {
-        let iter = Iter {
-            data: Box::new(it.expr),
-            start: None,
-            end: None,
-        };
-
-        let sym_b = Symbol::named("b", self.ty());
-        let sym_i = Symbol::named("i", Type::U64);
-        let sym_e = Symbol::named("e", self.ty().merge());
-
-        let b = Var::<AppenderType>::symbol(sym_b.clone());
-        let i = Var::<u64>::symbol(sym_i.clone());
-        let e = Var::<T>::symbol(sym_e.clone());
-
-        let body = f(b, i, e);
-
-        let func = Lambda {
-            params: vec![sym_b, sym_i, sym_e],
-            body: Box::new(body.expr),
-        };
-
-        let pfor = For {
-            iters: vec![iter],
-            builder: Box::new(self.expr),
-            func: Box::new(Expr::Lambda(func)),
-        };
-        Var::new(Expr::For(pfor))
-    }
 }
 
 impl Var<MergerType> {
     /// Create a new var of merger with given item type and operator.
-    pub fn merger(item_ty: Type, op_ty: BinOpType) -> Self {
-        Var::new(Expr::NewMerger(NewMerger { item_ty, op_ty }))
-    }
-
-    /// Evaluate the merger with static type, e.g. i32, i64, String, etc.
-    /// Returns the var of static type.
-    pub fn eval_static<T>(self) -> Var<T>
-    where
-        T: StaticType,
-    {
-        let result = Eval(Box::new(self.expr));
-        assert!(
-            result.ty() == T::ty(),
-            "Imcompatible types[{:?} and {:?}] on eval operation",
-            result.ty(),
-            T::ty()
-        );
-        Var::new(Expr::Eval(result))
+    pub fn merger<T: Into<Type>>(item_ty: T, op_ty: BinOpType) -> Self {
+        Var::new(Expr::NewMerger(NewMerger {
+            item_ty: item_ty.into(),
+            op_ty,
+        }))
     }
 
     /// Evaluate the merger with dynamic type, e.g. Tuple, Vector, etc.
     ///
     /// The input type should be consistent with the eval type.
-    pub fn eval_dynamic<T>(self, item_ty: T) -> Var<T>
-    where
-        T: DynamicType,
-    {
-        let item_ty = item_ty.ty();
+    pub fn eval<T: Into<Type>>(self, item_ty: T) -> Var<T> {
+        let item_ty = item_ty.into();
         let result = Eval(Box::new(self.expr));
         assert!(
             result.ty() == item_ty,
@@ -314,48 +305,18 @@ impl Var<MergerType> {
         };
         Var::new(Expr::Merge(m))
     }
-
-    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
-    where
-        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
-        F: 'static,
-    {
-        let iter = Iter {
-            data: Box::new(it.expr),
-            start: None,
-            end: None,
-        };
-
-        let sym_b = Symbol::named("b", self.ty());
-        let sym_i = Symbol::named("i", Type::U64);
-        let sym_e = Symbol::named("e", self.ty().merge());
-
-        let b = Var::<MergerType>::symbol(sym_b.clone());
-        let i = Var::<u64>::symbol(sym_i.clone());
-        let e = Var::<T>::symbol(sym_e.clone());
-
-        let body = f(b, i, e);
-
-        let func = Lambda {
-            params: vec![sym_b, sym_i, sym_e],
-            body: Box::new(body.expr),
-        };
-
-        let pfor = For {
-            iters: vec![iter],
-            builder: Box::new(self.expr),
-            func: Box::new(Expr::Lambda(func)),
-        };
-        Var::new(Expr::For(pfor))
-    }
 }
 
 impl Var<DictMergerType> {
     /// Create a new var of dictmerger with given key, value type and operator.
-    pub fn dictmerger(key_ty: Type, value_ty: Type, op_ty: BinOpType) -> Self {
+    pub fn dictmerger<K: Into<Type>, V: Into<Type>>(
+        key_ty: K,
+        value_ty: V,
+        op_ty: BinOpType,
+    ) -> Self {
         Var::new(Expr::NewDictMerger(NewDictMerger {
-            key_ty,
-            value_ty,
+            key_ty: key_ty.into(),
+            value_ty: value_ty.into(),
             op_ty,
         }))
     }
@@ -380,46 +341,15 @@ impl Var<DictMergerType> {
         };
         Var::new(Expr::Merge(m))
     }
-
-    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
-    where
-        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
-        F: 'static,
-    {
-        let iter = Iter {
-            data: Box::new(it.expr),
-            start: None,
-            end: None,
-        };
-
-        let sym_b = Symbol::named("b", self.ty());
-        let sym_i = Symbol::named("i", Type::U64);
-        let sym_e = Symbol::named("e", self.ty().merge());
-
-        let b = Var::<DictMergerType>::symbol(sym_b.clone());
-        let i = Var::<u64>::symbol(sym_i.clone());
-        let e = Var::<T>::symbol(sym_e.clone());
-
-        let body = f(b, i, e);
-
-        let func = Lambda {
-            params: vec![sym_b, sym_i, sym_e],
-            body: Box::new(body.expr),
-        };
-
-        let pfor = For {
-            iters: vec![iter],
-            builder: Box::new(self.expr),
-            func: Box::new(Expr::Lambda(func)),
-        };
-        Var::new(Expr::For(pfor))
-    }
 }
 
 impl Var<GroupMergerType> {
     /// Create a new var of groupmerger with given key, value type.
-    pub fn groupmerger(key_ty: Type, value_ty: Type) -> Self {
-        Var::new(Expr::NewGroupMerger(NewGroupMerger { key_ty, value_ty }))
+    pub fn groupmerger<K: Into<Type>, V: Into<Type>>(key_ty: K, value_ty: V) -> Self {
+        Var::new(Expr::NewGroupMerger(NewGroupMerger {
+            key_ty: key_ty.into(),
+            value_ty: value_ty.into(),
+        }))
     }
 
     /// Evaluate the groupmerger and returns a var of dict.
@@ -442,46 +372,15 @@ impl Var<GroupMergerType> {
         };
         Var::new(Expr::Merge(m))
     }
-
-    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
-    where
-        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
-        F: 'static,
-    {
-        let iter = Iter {
-            data: Box::new(it.expr),
-            start: None,
-            end: None,
-        };
-
-        let sym_b = Symbol::named("b", self.ty());
-        let sym_i = Symbol::named("i", Type::U64);
-        let sym_e = Symbol::named("e", self.ty().merge());
-
-        let b = Var::<GroupMergerType>::symbol(sym_b.clone());
-        let i = Var::<u64>::symbol(sym_i.clone());
-        let e = Var::<T>::symbol(sym_e.clone());
-
-        let body = f(b, i, e);
-
-        let func = Lambda {
-            params: vec![sym_b, sym_i, sym_e],
-            body: Box::new(body.expr),
-        };
-
-        let pfor = For {
-            iters: vec![iter],
-            builder: Box::new(self.expr),
-            func: Box::new(Expr::Lambda(func)),
-        };
-        Var::new(Expr::For(pfor))
-    }
 }
 
 impl Var<VecMergerType> {
     /// Create a new var of vecmerger with given item type and operator.
-    pub fn vecmerger(item_ty: Type, op_ty: BinOpType) -> Self {
-        Var::new(Expr::NewVecMerger(NewVecMerger { item_ty, op_ty }))
+    pub fn vecmerger<T: Into<Type>>(item_ty: T, op_ty: BinOpType) -> Self {
+        Var::new(Expr::NewVecMerger(NewVecMerger {
+            item_ty: item_ty.into(),
+            op_ty,
+        }))
     }
 
     /// Evaluate the vecmerger and returns a var of vector.
@@ -503,40 +402,6 @@ impl Var<VecMergerType> {
         };
         Var::new(Expr::Merge(m))
     }
-
-    pub fn pfor<T, F>(self, it: Var<VectorType>, f: F) -> Self
-    where
-        F: FnOnce(Self, Var<u64>, Var<T>) -> Self,
-        F: 'static,
-    {
-        let iter = Iter {
-            data: Box::new(it.expr),
-            start: None,
-            end: None,
-        };
-
-        let sym_b = Symbol::named("b", self.ty());
-        let sym_i = Symbol::named("i", Type::U64);
-        let sym_e = Symbol::named("e", self.ty().merge());
-
-        let b = Var::<VecMergerType>::symbol(sym_b.clone());
-        let i = Var::<u64>::symbol(sym_i.clone());
-        let e = Var::<T>::symbol(sym_e.clone());
-
-        let body = f(b, i, e);
-
-        let func = Lambda {
-            params: vec![sym_b, sym_i, sym_e],
-            body: Box::new(body.expr),
-        };
-
-        let pfor = For {
-            iters: vec![iter],
-            builder: Box::new(self.expr),
-            func: Box::new(Expr::Lambda(func)),
-        };
-        Var::new(Expr::For(pfor))
-    }
 }
 
 /// Implements methods on vector var.
@@ -554,40 +419,6 @@ impl Var<VectorType> {
         let item_ty: Type = items[0].ty();
         Var::new(Expr::NewVector(NewVector { item_ty, items }))
     }
-
-    // pub fn pfor<B, T, F>(self, builder: Var<B>, f: F) -> For
-    // where
-    //     // T: Into<Expr>,
-    //     F: FnOnce(Var<B>, Var<u64>, Var<T>) -> Var<B>,
-    //     F: 'static,
-    // {
-    //     let iter = Iter {
-    //         data: Box::new(self.expr),
-    //         start: None,
-    //         end: None,
-    //     };
-
-    //     let sym_b = Symbol::named("b", builder.ty());
-    //     let sym_i = Symbol::named("i", Type::U64);
-    //     let sym_e = Symbol::named("e", builder.ty().merge());
-
-    //     let b = Var::<B>::symbol(sym_b.clone());
-    //     let i = Var::<u64>::symbol(sym_i.clone());
-    //     let e = Var::<T>::symbol(sym_e.clone());
-
-    //     let body = f(b, i, e);
-
-    //     let func = Lambda {
-    //         params: vec![sym_b, sym_i, sym_e],
-    //         body: Box::new(body.expr),
-    //     };
-
-    //     For {
-    //         iters: vec![iter],
-    //         builder: Box::new(builder.expr),
-    //         func: Box::new(Expr::Lambda(func)),
-    //     }
-    // }
 }
 
 /// Marker trait for var with builder type
@@ -618,7 +449,7 @@ mod tests {
 
     #[test]
     fn test_var_appender() {
-        let a1 = Var::appender(Type::I32);
+        let a1 = Var::appender(I32);
         let a2 = a1.merge(1);
         let a3 = a2.merge(2);
         let a4 = a3.merge(3);
@@ -627,17 +458,17 @@ mod tests {
 
     #[test]
     fn test_var_merger() {
-        let m1 = Var::merger(Type::I32, BinOpType::Add);
+        let m1 = Var::merger(I32, BinOpType::Add);
         let m2 = m1.merge(1);
         let m3 = m2.merge(2);
         let m4 = m3.merge(3);
-        println!("{}", m4.eval_static::<i32>().expr);
+        println!("{}", m4.eval(I32).expr);
     }
 
     #[test]
     fn test_var_vector() {
         let v1 = Var::vector(vec![1, 2, 3]);
-        let m1 = Var::merger(Type::I32, BinOpType::Add);
+        let m1 = Var::merger(I32, BinOpType::Add);
         let m2 = m1.pfor(v1, |b, _i, e: Var<i32>| b.merge(e));
         println!("{}", m2.expr);
     }
