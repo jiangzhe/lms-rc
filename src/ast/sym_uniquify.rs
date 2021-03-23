@@ -1,6 +1,11 @@
 use super::{Expr, Lambda, Symbol, Transformer};
-use crate::{Error, Result};
+use crate::Result;
 use std::collections::HashMap;
+
+pub fn sym_uniquify(expr: &mut Expr) -> Result<()> {
+    let mut su = SymbolUniquifier::new();
+    su.transform(expr)
+}
 
 struct SymbolUniquifier {
     stack: HashMap<Symbol, Vec<u32>>,

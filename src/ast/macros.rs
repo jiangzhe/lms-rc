@@ -98,16 +98,6 @@ macro_rules! impl_arith_for_var_num {
     }
 }
 
-macro_rules! impl_into_type {
-    ($ty: ty, $path:path) => {
-        impl Into<Type> for $ty {
-            fn into(self) -> Type {
-                $path(self)
-            }
-        }
-    };
-}
-
 macro_rules! derive_display {
     ($ty:ty) => {
         impl std::fmt::Display for $ty {

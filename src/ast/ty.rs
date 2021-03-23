@@ -376,6 +376,7 @@ impl std::fmt::Display for Type {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Bool {}
+#[allow(non_upper_case_globals)]
 pub const Bool: Bool = Bool {};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -408,6 +409,7 @@ pub const F64: F64 = F64 {};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Str {}
+#[allow(non_upper_case_globals)]
 pub const Str: Str = Str {};
 
 impl_from_for_type!(U8, Type::U8);
