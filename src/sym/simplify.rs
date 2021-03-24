@@ -33,17 +33,15 @@ impl Simplify {
 
     #[inline]
     fn simplify_bo(&self, bo: &BinOp) -> Option<Expr> {
-        let BinOp{
-            op_ty, left, right
-        } = bo;
+        let BinOp { op_ty, left, right } = bo;
         // match (left.as_ref(), right.as_ref()) {
         //     (Expr::Symbol(sym), Expr::Literal(rlit)) => {
         //         if let Some(llit) = self.syms.get(sym) {
-                    
+
         //         }
         //     }
         // }
-        
+
         todo!()
     }
 }

@@ -1,4 +1,4 @@
-use super::{Bool, Expr, Str, Type, TypeInference, F32, F64, I32, I64, U32, U64, U8, BinOpType};
+use super::{BinOpType, Bool, Expr, Str, Type, TypeInference, F32, F64, I32, I64, U32, U64, U8};
 use crate::Result;
 use std::cmp::Ordering;
 
@@ -82,7 +82,12 @@ impl Literal {
 
     pub fn apply_bin_op(&self, other: &Self, op_ty: BinOpType) -> Result<Self> {
         if self.ty() != other.ty() {
-            return Err(compile_err!("incompatible types [{}, {}] for binary operation {}", self.ty(), other.ty(), op_ty))
+            return Err(compile_err!(
+                "incompatible types [{}, {}] for binary operation {}",
+                self.ty(),
+                other.ty(),
+                op_ty
+            ));
         }
         match op_ty {
             BinOpType::Add => try_add(self, other),
@@ -98,7 +103,9 @@ impl Literal {
             }
             BinOpType::GreaterThanOrEqual => {
                 let r = try_cmp(self, other)?;
-                Ok(Literal::Bool(r == Ordering::Greater || r == Ordering::Equal))
+                Ok(Literal::Bool(
+                    r == Ordering::Greater || r == Ordering::Equal,
+                ))
             }
             BinOpType::LessThan => {
                 let r = try_cmp(self, other)?;
@@ -149,15 +156,23 @@ fn try_cmp(this: &Literal, that: &Literal) -> Result<Ordering> {
         (Literal::F32(v0), Literal::F32(v1)) => {
             let v0 = f32::from_bits(*v0);
             let v1 = f32::from_bits(*v1);
-            v0.partial_cmp(&v1).ok_or_else(|| compile_err!("float values[{} and {}] fail cmp operation", v0, v1))?
+            v0.partial_cmp(&v1)
+                .ok_or_else(|| compile_err!("float values[{} and {}] fail cmp operation", v0, v1))?
         }
         (Literal::F64(v0), Literal::F64(v1)) => {
             let v0 = f64::from_bits(*v0);
             let v1 = f64::from_bits(*v1);
-            v0.partial_cmp(&v1).ok_or_else(|| compile_err!("float values[{} and {}] fail cmp operation", v0, v1))?
+            v0.partial_cmp(&v1)
+                .ok_or_else(|| compile_err!("float values[{} and {}] fail cmp operation", v0, v1))?
         }
         (Literal::Str(v0), Literal::Str(v1)) => v0.cmp(v1),
-        (s, o) => return Err(compile_err!("incompatible types [{} and {}] in cmp operation", s.ty(), o.ty())),
+        (s, o) => {
+            return Err(compile_err!(
+                "incompatible types [{} and {}] in cmp operation",
+                s.ty(),
+                o.ty()
+            ))
+        }
     };
     Ok(r)
 }

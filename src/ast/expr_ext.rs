@@ -16,7 +16,6 @@ pub trait ExprTransformer {
 
 /// ExprVisitor defines visitor on Expr.
 pub trait ExprVisitor {
-    
     fn visit_expr(&mut self, expr: &Expr) -> Result<()>;
 
     fn visit_lambda(&mut self, lambda: &Lambda) -> Result<()>;
