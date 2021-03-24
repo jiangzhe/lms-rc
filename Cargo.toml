@@ -3,11 +3,6 @@ authors = ["jiangzhe <zhe.jiang@transwarp.io>"]
 edition = "2018"
 name = "lms-rs"
 version = "0.1.0"
-[dependencies]
-enum_dispatch = "0.3"
-src = "*"
-thiserror = "1.0"
-rg/cargo/reference/manifest.html
 
 [dependencies]
 enum_dispatch = "0.3"

@@ -1,4 +1,5 @@
 use super::*;
+use crate::sym::Symbol;
 use std::marker::PhantomData;
 use std::ops::{Add, Div, Mul, Neg, Not, Sub};
 

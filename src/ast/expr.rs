@@ -1,4 +1,5 @@
 use super::*;
+use crate::sym::Symbol;
 use crate::Result;
 use enum_dispatch::enum_dispatch;
 

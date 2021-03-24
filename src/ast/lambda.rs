@@ -1,5 +1,5 @@
-use super::{Expr, Symbol, Type, TypeInference};
-
+use super::{Expr, Type, TypeInference};
+use crate::sym::Symbol;
 /// LambdaType specifies argument types and return type of a lambda
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LambdaType {
@@ -24,8 +24,8 @@ impl std::fmt::Display for LambdaType {
 /// Lambda represents an anonymous function
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lambda {
-    pub(super) params: Vec<Symbol>,
-    pub(super) body: Box<Expr>,
+    pub(crate) params: Vec<Symbol>,
+    pub(crate) body: Box<Expr>,
 }
 
 impl TypeInference for Lambda {

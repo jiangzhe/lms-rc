@@ -1,4 +1,5 @@
-use super::{Expr, Lambda, Symbol, Transformer};
+use crate::ast::{Expr, Lambda, Transformer};
+use super::Symbol;
 use crate::Result;
 use std::collections::HashMap;
 

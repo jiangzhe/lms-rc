@@ -1,4 +1,5 @@
 use super::*;
+use crate::sym::Symbol;
 use enum_dispatch::enum_dispatch;
 
 /// Enable type inference on any expression.

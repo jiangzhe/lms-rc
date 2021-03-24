@@ -1,4 +1,6 @@
-use super::{Builder, Expr, Merge, Type, TypeInference};
+mod uniquify;
+
+use crate::ast::{Builder, Expr, Merge, Type, TypeInference};
 
 /// Symbol represents a named variable.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

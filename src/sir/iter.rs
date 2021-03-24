@@ -1,4 +1,4 @@
-use crate::ast::Symbol;
+use crate::sym::Symbol;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct StmtIter {

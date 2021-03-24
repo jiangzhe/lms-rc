@@ -1,4 +1,5 @@
 use crate::ast::*;
+use crate::sym::Symbol;
 use crate::sir::iter::StmtIter;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
