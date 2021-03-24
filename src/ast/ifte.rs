@@ -3,9 +3,9 @@ use super::{Expr, Type, TypeInference};
 /// Different branches based on condition.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct IfThenElse {
-    pub(super) i: Box<Expr>,
-    pub(super) t: Box<Expr>,
-    pub(super) e: Box<Expr>,
+    pub(crate) i: Box<Expr>,
+    pub(crate) t: Box<Expr>,
+    pub(crate) e: Box<Expr>,
 }
 
 impl TypeInference for IfThenElse {

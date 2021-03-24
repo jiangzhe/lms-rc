@@ -14,7 +14,7 @@ pub trait Builder {
 /// Appender appends input item to a list.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AppenderType {
-    pub(super) item_ty: Box<Type>,
+    pub(crate) item_ty: Box<Type>,
 }
 
 impl_from_for_type!(AppenderType, Type::Appender);
@@ -28,7 +28,7 @@ impl std::fmt::Display for AppenderType {
 /// A new Appender.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewAppender {
-    pub(super) item_ty: Type,
+    pub(crate) item_ty: Type,
 }
 
 impl TypeInference for NewAppender {
@@ -71,8 +71,8 @@ impl std::fmt::Display for NewAppender {
 /// Merger merges input into single value.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct MergerType {
-    pub(super) item_ty: Box<Type>,
-    pub(super) op_ty: BinOpType,
+    pub(crate) item_ty: Box<Type>,
+    pub(crate) op_ty: BinOpType,
 }
 
 impl_from_for_type!(MergerType, Type::Merger);
@@ -86,8 +86,8 @@ impl std::fmt::Display for MergerType {
 /// A new Merger.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewMerger {
-    pub(super) item_ty: Type,
-    pub(super) op_ty: BinOpType,
+    pub(crate) item_ty: Type,
+    pub(crate) op_ty: BinOpType,
 }
 
 impl TypeInference for NewMerger {
@@ -131,9 +131,9 @@ impl std::fmt::Display for NewMerger {
 /// DictMerger merge value by key into a dictionary.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DictMergerType {
-    pub(super) key_ty: Box<Type>,
-    pub(super) value_ty: Box<Type>,
-    pub(super) op_ty: BinOpType,
+    pub(crate) key_ty: Box<Type>,
+    pub(crate) value_ty: Box<Type>,
+    pub(crate) op_ty: BinOpType,
 }
 
 impl_from_for_type!(DictMergerType, Type::DictMerger);
@@ -147,9 +147,9 @@ impl std::fmt::Display for DictMergerType {
 /// A new DictMerger.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewDictMerger {
-    pub(super) key_ty: Type,
-    pub(super) value_ty: Type,
-    pub(super) op_ty: BinOpType,
+    pub(crate) key_ty: Type,
+    pub(crate) value_ty: Type,
+    pub(crate) op_ty: BinOpType,
 }
 
 impl TypeInference for NewDictMerger {
@@ -199,8 +199,8 @@ impl std::fmt::Display for NewDictMerger {
 /// GroupMerger append value into list group by key.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GroupMergerType {
-    pub(super) key_ty: Box<Type>,
-    pub(super) value_ty: Box<Type>,
+    pub(crate) key_ty: Box<Type>,
+    pub(crate) value_ty: Box<Type>,
 }
 
 impl_from_for_type!(GroupMergerType, Type::GroupMerger);
@@ -214,8 +214,8 @@ impl std::fmt::Display for GroupMergerType {
 /// A new GroupMerger.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewGroupMerger {
-    pub(super) key_ty: Type,
-    pub(super) value_ty: Type,
+    pub(crate) key_ty: Type,
+    pub(crate) value_ty: Type,
 }
 
 impl TypeInference for NewGroupMerger {
@@ -260,8 +260,8 @@ impl std::fmt::Display for NewGroupMerger {
 /// VecMerger update vector in place by given index and item.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VecMergerType {
-    pub(super) item_ty: Box<Type>,
-    pub(super) op_ty: BinOpType,
+    pub(crate) item_ty: Box<Type>,
+    pub(crate) op_ty: BinOpType,
 }
 
 impl_from_for_type!(VecMergerType, Type::VecMerger);
@@ -275,8 +275,8 @@ impl std::fmt::Display for VecMergerType {
 /// A new VecMerger.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewVecMerger {
-    pub(super) item_ty: Type,
-    pub(super) op_ty: BinOpType,
+    pub(crate) item_ty: Type,
+    pub(crate) op_ty: BinOpType,
 }
 
 impl TypeInference for NewVecMerger {

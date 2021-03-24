@@ -3,8 +3,8 @@ use super::{Expr, Type, TypeInference};
 /// Lookup value in dictionary.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Lookup {
-    pub(super) data: Box<Expr>,
-    pub(super) index: Box<Expr>,
+    pub(crate) data: Box<Expr>,
+    pub(crate) index: Box<Expr>,
 }
 
 impl TypeInference for Lookup {

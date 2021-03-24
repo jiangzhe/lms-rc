@@ -53,28 +53,40 @@ pub enum Expr {
 
 impl Expr {
     /// Apply given transformer to all children.
-    pub fn apply_to_children<F>(&mut self, f: &mut F) -> Result<()>
+    ///
+    /// The transformer's output should be ().
+    pub fn apply_children<F>(&mut self, f: &mut F) -> Result<()>
     where
-        F: Transformer<Expr> + Transformer<Symbol>,
+        F: ExprTransformer,
     {
         match self {
-            Expr::Broadcast(bc) => f.transform(bc.value.as_mut())?,
-            Expr::BinOp(BinOp { left, right, .. }) => {
-                f.transform(left.as_mut())?;
-                f.transform(right.as_mut())?;
+            Expr::Broadcast(bc) => {
+                f.transform_expr(bc.value.as_mut())?;
             }
-            Expr::UnaryOp(UnaryOp { value, .. }) => f.transform(value.as_mut())?,
-            Expr::Cast(Cast { value, .. }) => f.transform(value.as_mut())?,
-            Expr::GetField(GetField { tuple, .. }) => f.transform(tuple.as_mut())?,
-            Expr::Length(Length(value)) => f.transform(value.as_mut())?,
+            Expr::BinOp(BinOp { left, right, .. }) => {
+                f.transform_expr(left.as_mut())?;
+                f.transform_expr(right.as_mut())?;
+            }
+            Expr::UnaryOp(UnaryOp { value, .. }) => {
+                f.transform_expr(value.as_mut())?;
+            }
+            Expr::Cast(Cast { value, .. }) => {
+                f.transform_expr(value.as_mut())?;
+            }
+            Expr::GetField(GetField { tuple, .. }) => {
+                f.transform_expr(tuple.as_mut())?;
+            }
+            Expr::Length(Length(value)) => {
+                f.transform_expr(value.as_mut())?;
+            }
             Expr::Lookup(Lookup { data, index }) => {
-                f.transform(data.as_mut())?;
-                f.transform(index.as_mut())?;
+                f.transform_expr(data.as_mut())?;
+                f.transform_expr(index.as_mut())?;
             }
             Expr::IfThenElse(IfThenElse { i, t, e }) => {
-                f.transform(i.as_mut())?;
-                f.transform(t.as_mut())?;
-                f.transform(e.as_mut())?;
+                f.transform_expr(i.as_mut())?;
+                f.transform_expr(t.as_mut())?;
+                f.transform_expr(e.as_mut())?;
             }
             Expr::For(For {
                 iters,
@@ -82,33 +94,33 @@ impl Expr {
                 func,
             }) => {
                 for it in iters {
-                    f.transform(it.data.as_mut())?;
+                    f.transform_expr(it.data.as_mut())?;
                     if let Some(start) = it.start.as_mut() {
-                        f.transform(start.as_mut())?;
+                        f.transform_expr(start.as_mut())?;
                     }
                     if let Some(end) = it.end.as_mut() {
-                        f.transform(end.as_mut())?;
+                        f.transform_expr(end.as_mut())?;
                     }
                 }
-                f.transform(builder.as_mut())?;
-                f.transform(func.as_mut())?;
+                f.transform_expr(builder.as_mut())?;
+                f.transform_expr(func.as_mut())?;
             }
             Expr::Merge(Merge { builder, value }) => {
-                f.transform(builder.as_mut())?;
-                f.transform(value.as_mut())?;
+                f.transform_expr(builder.as_mut())?;
+                f.transform_expr(value.as_mut())?;
             }
-            Expr::Lambda(Lambda { params, body }) => {
-                for p in params {
-                    f.transform(p)?;
-                }
-                f.transform(body.as_mut())?;
+            Expr::Lambda(lambda) => {
+                f.transform_lambda(lambda)?;
             }
             Expr::NewVector(NewVector { items, .. }) => {
                 for it in items {
-                    f.transform(it)?;
+                    f.transform_expr(it)?;
                 }
             }
-            Expr::Eval(Eval(value)) => f.transform(value.as_mut())?,
+            Expr::Eval(Eval(value)) => {
+                f.transform_expr(value.as_mut())?;
+            }
+            // below expressions do not have children
             Expr::Symbol(_)
             | Expr::Literal(_)
             | Expr::NewDict(_)
@@ -117,8 +129,85 @@ impl Expr {
             | Expr::NewDictMerger(_)
             | Expr::NewGroupMerger(_)
             | Expr::NewVecMerger(_) => (),
-        }
+        };
+        Ok(())
+    }
 
+    pub fn traverse_children<F>(&self, f: &mut F) -> Result<()>
+    where
+        F: ExprVisitor,
+    {
+        match self {
+            Expr::Broadcast(bc) => {
+                f.visit_expr(bc.value.as_ref())?;
+            }
+            Expr::BinOp(BinOp { left, right, .. }) => {
+                f.visit_expr(left.as_ref())?;
+                f.visit_expr(right.as_ref())?;
+            }
+            Expr::UnaryOp(UnaryOp { value, .. }) => {
+                f.visit_expr(value.as_ref())?;
+            }
+            Expr::Cast(Cast { value, .. }) => {
+                f.visit_expr(value.as_ref())?;
+            }
+            Expr::GetField(GetField { tuple, .. }) => {
+                f.visit_expr(tuple.as_ref())?;
+            }
+            Expr::Length(Length(value)) => {
+                f.visit_expr(value.as_ref())?;
+            }
+            Expr::Lookup(Lookup { data, index }) => {
+                f.visit_expr(data.as_ref())?;
+                f.visit_expr(index.as_ref())?;
+            }
+            Expr::IfThenElse(IfThenElse { i, t, e }) => {
+                f.visit_expr(i.as_ref())?;
+                f.visit_expr(t.as_ref())?;
+                f.visit_expr(e.as_ref())?;
+            }
+            Expr::For(For {
+                iters,
+                builder,
+                func,
+            }) => {
+                for it in iters {
+                    f.visit_expr(it.data.as_ref())?;
+                    if let Some(start) = it.start.as_ref() {
+                        f.visit_expr(start.as_ref())?;
+                    }
+                    if let Some(end) = it.end.as_ref() {
+                        f.visit_expr(end.as_ref())?;
+                    }
+                }
+                f.visit_expr(builder.as_ref())?;
+                f.visit_expr(func.as_ref())?;
+            }
+            Expr::Merge(Merge { builder, value }) => {
+                f.visit_expr(builder.as_ref())?;
+                f.visit_expr(value.as_ref())?;
+            }
+            Expr::Lambda(lambda) => {
+                f.visit_lambda(lambda)?;
+            }
+            Expr::NewVector(NewVector { items, .. }) => {
+                for it in items {
+                    f.visit_expr(it)?;
+                }
+            }
+            Expr::Eval(Eval(value)) => {
+                f.visit_expr(value.as_ref())?;
+            }
+            // below expressions do not have children
+            Expr::Symbol(_)
+            | Expr::Literal(_)
+            | Expr::NewDict(_)
+            | Expr::NewAppender(_)
+            | Expr::NewMerger(_)
+            | Expr::NewDictMerger(_)
+            | Expr::NewGroupMerger(_)
+            | Expr::NewVecMerger(_) => (),
+        };
         Ok(())
     }
 }

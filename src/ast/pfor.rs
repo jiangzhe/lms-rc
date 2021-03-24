@@ -5,9 +5,9 @@ use super::{Builder, Expr, Iter, Merge, Type, TypeInference};
 /// The usage of For already be coupled with some builder.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct For {
-    pub(super) iters: Vec<Iter>,
-    pub(super) builder: Box<Expr>,
-    pub(super) func: Box<Expr>,
+    pub(crate) iters: Vec<Iter>,
+    pub(crate) builder: Box<Expr>,
+    pub(crate) func: Box<Expr>,
 }
 
 impl TypeInference for For {

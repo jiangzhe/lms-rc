@@ -2,7 +2,7 @@ use super::{Expr, Type, TypeInference, U64};
 
 /// Get length of a vector.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Length(pub(super) Box<Expr>);
+pub struct Length(pub(crate) Box<Expr>);
 
 impl TypeInference for Length {
     fn ty(&self) -> Type {

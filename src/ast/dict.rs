@@ -3,8 +3,8 @@ use super::{Type, TypeInference};
 /// Dict type contains key type and value type.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DictType {
-    pub(super) key_ty: Box<Type>,
-    pub(super) value_ty: Box<Type>,
+    pub(crate) key_ty: Box<Type>,
+    pub(crate) value_ty: Box<Type>,
 }
 
 impl_from_for_type!(DictType, Type::Dict);
@@ -18,8 +18,8 @@ impl std::fmt::Display for DictType {
 /// A new Dictionary.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct NewDict {
-    key_ty: Type,
-    value_ty: Type,
+    pub(crate) key_ty: Type,
+    pub(crate) value_ty: Type,
 }
 
 impl TypeInference for NewDict {

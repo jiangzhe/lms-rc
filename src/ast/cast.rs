@@ -3,8 +3,8 @@ use super::{Expr, Type, TypeInference};
 /// Cast an expression to a certain type.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Cast {
-    pub(super) ty: Type,
-    pub(super) value: Box<Expr>,
+    pub(crate) ty: Type,
+    pub(crate) value: Box<Expr>,
 }
 
 impl TypeInference for Cast {

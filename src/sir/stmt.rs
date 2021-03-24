@@ -1,6 +1,6 @@
 use crate::ast::*;
-use crate::sym::Symbol;
 use crate::sir::iter::StmtIter;
+use crate::sym::Symbol;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Stmt {

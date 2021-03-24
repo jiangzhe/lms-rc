@@ -26,8 +26,8 @@ derive_display!(UnaryOpType);
 /// Unary operation on single expression.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct UnaryOp {
-    pub(super) op_ty: UnaryOpType,
-    pub(super) value: Box<Expr>,
+    pub(crate) op_ty: UnaryOpType,
+    pub(crate) value: Box<Expr>,
 }
 
 impl UnaryOp {

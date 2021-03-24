@@ -21,7 +21,7 @@ pub enum BinOpType {
     Xor,
     Max,
     Min,
-    Pow,
+    // Pow,
 }
 
 derive_display!(BinOpType);
@@ -29,9 +29,9 @@ derive_display!(BinOpType);
 /// A binary operation on two expressions.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BinOp {
-    pub(super) op_ty: BinOpType,
-    pub(super) left: Box<Expr>,
-    pub(super) right: Box<Expr>,
+    pub(crate) op_ty: BinOpType,
+    pub(crate) left: Box<Expr>,
+    pub(crate) right: Box<Expr>,
 }
 
 impl BinOp {

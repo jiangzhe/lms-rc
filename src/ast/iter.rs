@@ -3,9 +3,9 @@ use super::{Expr, Type, TypeInference};
 /// Iteration on data with optional start and end expression.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Iter {
-    pub(super) data: Box<Expr>,
-    pub(super) start: Option<Box<Expr>>,
-    pub(super) end: Option<Box<Expr>>,
+    pub(crate) data: Box<Expr>,
+    pub(crate) start: Option<Box<Expr>>,
+    pub(crate) end: Option<Box<Expr>>,
 }
 
 impl TypeInference for Iter {

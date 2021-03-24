@@ -61,6 +61,109 @@ macro_rules! impl_from_for_type {
     };
 }
 
+macro_rules! try_eq_for_lit {
+    ($f:ident, $op:tt) => {
+        fn $f(this: &Literal, that: &Literal) -> Result<Literal> {
+            let r = match (this, that) {
+                (Literal::Bool(v0), Literal::Bool(v1)) => v0 $op v1,
+                (Literal::U8(v0), Literal::U8(v1)) => v0 $op v1,
+                (Literal::U32(v0), Literal::U32(v1)) => v0 $op v1,
+                (Literal::I32(v0), Literal::I32(v1)) => v0 $op v1,
+                (Literal::U64(v0), Literal::U64(v1)) => v0 $op v1,
+                (Literal::I64(v0), Literal::I64(v1)) => v0 $op v1,
+                (Literal::F32(v0), Literal::F32(v1)) => v0 $op v1,
+                (Literal::F64(v0), Literal::F64(v1)) => v0 $op v1,
+                (Literal::Str(v0), Literal::Str(v1)) => v0 $op v1,
+                (s, o) => return Err(compile_err!("incompatible types [{} and {}] in eq/ne operation", s.ty(), o.ty())),
+            };
+            Ok(Literal::Bool(r))
+        }
+    }
+}
+
+macro_rules! try_maxmin_for_lit {
+    ($f:ident, $op:tt) => {
+        fn $f(this: &Literal, that: &Literal) -> Result<Literal> {
+            let r = match (this, that) {
+                (Literal::U8(v0), Literal::U8(v1)) => if v0 $op v1 { this.clone() } else { that.clone() },
+                (Literal::U32(v0), Literal::U32(v1)) => if v0 $op v1 { this.clone() } else { that.clone() },
+                (Literal::I32(v0), Literal::I32(v1)) => if v0 $op v1 { this.clone() } else { that.clone() },
+                (Literal::U64(v0), Literal::U64(v1)) => if v0 $op v1 { this.clone() } else { that.clone() },
+                (Literal::I64(v0), Literal::I64(v1)) => if v0 $op v1 { this.clone() } else { that.clone() },
+                (Literal::F32(v0), Literal::F32(v1)) => {
+                    let v0 = f32::from_bits(*v0);
+                    let v1 = f32::from_bits(*v1);
+                    if v0 $op v1 { this.clone() } else { that.clone() }
+                }
+                (Literal::F64(v0), Literal::F64(v1)) => {
+                    let v0 = f64::from_bits(*v0);
+                    let v1 = f64::from_bits(*v1);
+                    if v0 $op v1 { this.clone() } else { that.clone() }
+                }
+                (Literal::Str(v0), Literal::Str(v1)) => if v0 $op v1 { this.clone() } else { that.clone() },
+                (s, o) => return Err(compile_err!("incompatible types [{} and {}] in {} operation", s.ty(), o.ty(), stringify!($f))),
+            };
+            Ok(r)
+        }
+    }
+}
+
+macro_rules! try_logical_for_lit {
+    ($f:ident, $op:tt) => {
+        fn $f(this: &Literal, that: &Literal) -> Result<Literal> {
+            let r = match (this, that) {
+                (Literal::Bool(v0), Literal::Bool(v1)) => *v0 $op *v1,
+                (s, o) => return Err(compile_err!("incompatible types [{} and {}] in {} operation", s.ty(), o.ty(), stringify!($f))),
+            };
+            Ok(Literal::Bool(r))
+        }
+    }
+}
+
+macro_rules! try_arith_for_num_lit {
+    ($f:ident, $op:tt) => {
+        fn $f(this: &Literal, that: &Literal) -> Result<Literal> {
+            let r = match (this, that) {
+                (Literal::U8(left), Literal::U8(right)) => Literal::U8(left $op right),
+                (Literal::U32(left), Literal::U32(right)) => Literal::U32(left $op right),
+                (Literal::I32(left), Literal::I32(right)) => Literal::I32(left $op right),
+                (Literal::U64(left), Literal::U64(right)) => Literal::U64(left $op right),
+                (Literal::I64(left), Literal::I64(right)) => Literal::I64(left $op right),
+                (Literal::F32(left), Literal::F32(right)) => {
+                    let left = f32::from_bits(*left);
+                    let right = f32::from_bits(*right);
+                    let r = left $op right;
+                    Literal::F32(f32::to_bits(r))
+                }
+                (Literal::F64(left), Literal::F64(right)) => {
+                    let left = f64::from_bits(*left);
+                    let right = f64::from_bits(*right);
+                    let r = left $op right;
+                    Literal::F64(f64::to_bits(r))
+                }
+                (s, o) => return Err(compile_err!("incompatible types [{}, {}] for {} operation", s.ty(), o.ty(), stringify!($ty))),
+            };
+            Ok(r)
+        }
+    }
+}
+
+macro_rules! try_bitop_for_num_lit {
+    ($f:ident, $op:tt) => {
+        fn $f(this: &Literal, that: &Literal) -> Result<Literal> {
+            let r = match (this, that) {
+                (Literal::U8(v0), Literal::U8(v1)) => Literal::U8(v0 $op v1),
+                (Literal::U32(v0), Literal::U32(v1)) => Literal::U32(v0 $op v1),
+                (Literal::I32(v0), Literal::I32(v1)) => Literal::I32(v0 $op v1),
+                (Literal::U64(v0), Literal::U64(v1)) => Literal::U64(v0 $op v1),
+                (Literal::I64(v0), Literal::I64(v1)) => Literal::I64(v0 $op v1),
+                (s, o) => return Err(compile_err!("incompatible types [{} and {}] in {} operation", s.ty(), o.ty(), stringify!($f))),
+            };
+            Ok(r)
+        }
+    }
+}
+
 macro_rules! impl_arith_for_var_num {
     ($opty:ty, $opgty:ty, $tty:ty, $builtinty:ty, $opf:ident, $op:tt, $asf:ident, $litf:ident, $exprf:ident, $binopf:path) => {
         impl $opty for Var<$tty> {

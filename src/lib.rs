@@ -6,9 +6,9 @@
 #[macro_use]
 pub mod error;
 pub mod ast;
-pub mod sym;
 pub mod sir;
 pub mod stage;
+pub mod sym;
 
 pub use error::Error;
 pub type Result<T> = std::result::Result<T, Error>;

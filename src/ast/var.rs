@@ -31,15 +31,27 @@ impl<T> Var<T> {
         }
     }
 
-    /// Create a new symbol with specified type
+    /// Clone a symbol.
     ///
     /// The type should be consistent with generic
     /// type T.
     /// This factory method is used on constructing
     /// Function from input DSL.
-    pub fn symbol(sym: Symbol) -> Self {
+    pub fn clone_symbol(sym: Symbol) -> Self {
         Var {
             expr: Expr::Symbol(sym),
+            _marker: PhantomData,
+        }
+    }
+
+    /// Create a new symbol.
+    pub fn new_symbol<S>(name: S, ty: T) -> Self
+    where
+        S: Into<String>,
+        T: Into<Type>,
+    {
+        Var {
+            expr: Expr::Symbol(Symbol::named(name, ty)),
             _marker: PhantomData,
         }
     }
@@ -215,9 +227,9 @@ impl<B: BuilderType> Var<B> {
         let sym_i = Symbol::named("i", U64);
         let sym_e = Symbol::named("e", self.ty().merge());
 
-        let b = Var::<B>::symbol(sym_b.clone());
-        let i = Var::<u64>::symbol(sym_i.clone());
-        let e = Var::<T>::symbol(sym_e.clone());
+        let b = Var::<B>::clone_symbol(sym_b.clone());
+        let i = Var::<u64>::clone_symbol(sym_i.clone());
+        let e = Var::<T>::clone_symbol(sym_e.clone());
 
         let body = f(b, i, e);
 

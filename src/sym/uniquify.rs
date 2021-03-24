@@ -1,55 +1,55 @@
-use crate::ast::{Expr, Lambda, Transformer};
 use super::Symbol;
+use crate::ast::{Expr, ExprTransformer, Lambda};
 use crate::Result;
 use std::collections::HashMap;
 
-pub fn sym_uniquify(expr: &mut Expr) -> Result<()> {
-    let mut su = SymbolUniquifier::new();
-    su.transform(expr)
+pub fn uniquify(expr: &mut Expr) -> Result<()> {
+    let mut su = Uniquifier::new();
+    su.transform_expr(expr)
 }
 
-struct SymbolUniquifier {
+struct Uniquifier {
     stack: HashMap<Symbol, Vec<u32>>,
     next_unique_id: HashMap<String, u32>,
 }
 
-impl Transformer<Expr> for SymbolUniquifier {
-    fn transform(&mut self, expr: &mut Expr) -> Result<()> {
+impl ExprTransformer for Uniquifier {
+    fn transform_expr(&mut self, expr: &mut Expr) -> Result<()> {
         match expr {
-            Expr::Lambda(Lambda {
-                params,
-                ref mut body,
-            }) => {
-                let orig_params = params.clone();
-                for param in params {
-                    self.push(param);
-                    self.transform(param)?;
-                }
-                self.transform(body.as_mut())?;
-
-                for param in orig_params.iter().rev() {
-                    self.pop(param)?;
-                }
-            }
             Expr::Symbol(sym) => {
-                self.transform(sym)?;
+                // match and rename the symbol
+                *sym = self.get(sym)?;
             }
-            other => other.apply_to_children(self)?,
+            other => {
+                other.apply_children(self)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn transform_lambda(&mut self, lambda: &mut Lambda) -> Result<()> {
+        let Lambda {
+            params,
+            ref mut body,
+        } = lambda;
+
+        let orig_params = params.clone();
+        for param in params {
+            self.push(param);
+            *param = self.get(param)?;
+        }
+        self.transform_expr(body.as_mut())?;
+
+        for param in orig_params.iter().rev() {
+            self.pop(param)?;
         }
         Ok(())
     }
 }
 
-impl Transformer<Symbol> for SymbolUniquifier {
-    fn transform(&mut self, sym: &mut Symbol) -> Result<()> {
-        *sym = self.get(sym)?;
-        Ok(())
-    }
-}
-
-impl SymbolUniquifier {
+impl Uniquifier {
     fn new() -> Self {
-        SymbolUniquifier {
+        Uniquifier {
             stack: HashMap::new(),
             next_unique_id: HashMap::new(),
         }
@@ -102,8 +102,6 @@ impl SymbolUniquifier {
 #[cfg(test)]
 mod tests {
 
-    use super::SymbolUniquifier;
-
     use crate::ast::*;
 
     #[test]
@@ -117,8 +115,7 @@ mod tests {
         let v6 = v5.pfor(v3, |b, _, e: Var<i32>| b.merge(e)).eval(I32);
         let mut v7: Expr = (v4 + v6).into();
         println!("{}", v7);
-        let mut uniq = SymbolUniquifier::new();
-        uniq.transform(&mut v7).unwrap();
+        super::uniquify(&mut v7).unwrap();
         println!("{}", v7);
     }
 }

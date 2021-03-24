@@ -3,9 +3,9 @@ use super::{Expr, Type, TypeInference};
 /// Get value from tuple by given index.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GetField {
-    pub(super) ty: Type,
-    pub(super) tuple: Box<Expr>,
-    pub(super) index: u32,
+    pub(crate) ty: Type,
+    pub(crate) tuple: Box<Expr>,
+    pub(crate) index: u32,
 }
 
 impl TypeInference for GetField {

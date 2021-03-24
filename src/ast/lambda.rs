@@ -3,8 +3,8 @@ use crate::sym::Symbol;
 /// LambdaType specifies argument types and return type of a lambda
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct LambdaType {
-    args_ty: Vec<Type>,
-    ret_ty: Box<Type>,
+    pub(crate) args_ty: Vec<Type>,
+    pub(crate) ret_ty: Box<Type>,
 }
 
 impl std::fmt::Display for LambdaType {

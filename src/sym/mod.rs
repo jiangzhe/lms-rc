@@ -1,3 +1,5 @@
+mod extract;
+mod simplify;
 mod uniquify;
 
 use crate::ast::{Builder, Expr, Merge, Type, TypeInference};

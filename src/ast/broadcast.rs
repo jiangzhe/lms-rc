@@ -3,7 +3,7 @@ use super::{Expr, Type, TypeInference, VectorType};
 /// A broadcast value acting like a vector with identical items.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Broadcast {
-    pub(super) value: Box<Expr>,
+    pub(crate) value: Box<Expr>,
 }
 
 impl TypeInference for Broadcast {
