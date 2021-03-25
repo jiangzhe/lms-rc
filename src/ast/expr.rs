@@ -52,74 +52,97 @@ pub enum Expr {
 }
 
 impl Expr {
+    pub fn as_symbol(&self) -> Option<&Symbol> {
+        match self {
+            Expr::Symbol(sym) => Some(sym),
+            _ => None,
+        }
+    }
+
+    pub fn is_symbol(&self) -> bool {
+        match self {
+            Expr::Symbol(_) => true,
+            _ => false,
+        }
+    }
+
+    pub fn as_lit(&self) -> Option<&Literal> {
+        match self {
+            Expr::Literal(lit) => Some(lit),
+            _ => None,
+        }
+    }
+
+    pub fn is_lit(&self) -> bool {
+        match self {
+            Expr::Literal(_) => true,
+            _ => false,
+        }
+    }
+
     /// Apply given transformer to all children.
     ///
-    /// The transformer's output should be ().
-    pub fn apply_children<F>(&mut self, f: &mut F) -> Result<()>
+    /// If returns true, the transformation take effect on any of child.
+    /// Otherwise, no effect.
+    pub fn apply_children<F>(&mut self, f: &mut F) -> Result<bool>
     where
         F: ExprTransformer,
     {
-        match self {
-            Expr::Broadcast(bc) => {
-                f.transform_expr(bc.value.as_mut())?;
-            }
+        let r = match self {
+            Expr::Broadcast(bc) => f.transform_expr(bc.value.as_mut())?,
             Expr::BinOp(BinOp { left, right, .. }) => {
-                f.transform_expr(left.as_mut())?;
-                f.transform_expr(right.as_mut())?;
+                let mut r = f.transform_expr(left.as_mut())?;
+                r |= f.transform_expr(right.as_mut())?;
+                r
             }
-            Expr::UnaryOp(UnaryOp { value, .. }) => {
-                f.transform_expr(value.as_mut())?;
-            }
-            Expr::Cast(Cast { value, .. }) => {
-                f.transform_expr(value.as_mut())?;
-            }
-            Expr::GetField(GetField { tuple, .. }) => {
-                f.transform_expr(tuple.as_mut())?;
-            }
-            Expr::Length(Length(value)) => {
-                f.transform_expr(value.as_mut())?;
-            }
+            Expr::UnaryOp(UnaryOp { value, .. }) => f.transform_expr(value.as_mut())?,
+            Expr::Cast(Cast { value, .. }) => f.transform_expr(value.as_mut())?,
+            Expr::GetField(GetField { tuple, .. }) => f.transform_expr(tuple.as_mut())?,
+            Expr::Length(Length(value)) => f.transform_expr(value.as_mut())?,
             Expr::Lookup(Lookup { data, index }) => {
-                f.transform_expr(data.as_mut())?;
-                f.transform_expr(index.as_mut())?;
+                let mut r = f.transform_expr(data.as_mut())?;
+                r |= f.transform_expr(index.as_mut())?;
+                r
             }
             Expr::IfThenElse(IfThenElse { i, t, e }) => {
-                f.transform_expr(i.as_mut())?;
-                f.transform_expr(t.as_mut())?;
-                f.transform_expr(e.as_mut())?;
+                let mut r = f.transform_expr(i.as_mut())?;
+                r |= f.transform_expr(t.as_mut())?;
+                r |= f.transform_expr(e.as_mut())?;
+                r
             }
             Expr::For(For {
                 iters,
                 builder,
                 func,
             }) => {
+                let mut r = false;
                 for it in iters {
-                    f.transform_expr(it.data.as_mut())?;
+                    r |= f.transform_expr(it.data.as_mut())?;
                     if let Some(start) = it.start.as_mut() {
-                        f.transform_expr(start.as_mut())?;
+                        r |= f.transform_expr(start.as_mut())?;
                     }
                     if let Some(end) = it.end.as_mut() {
-                        f.transform_expr(end.as_mut())?;
+                        r |= f.transform_expr(end.as_mut())?;
                     }
                 }
-                f.transform_expr(builder.as_mut())?;
-                f.transform_expr(func.as_mut())?;
+                r |= f.transform_expr(builder.as_mut())?;
+                r |= f.transform_expr(func.as_mut())?;
+                r
             }
             Expr::Merge(Merge { builder, value }) => {
-                f.transform_expr(builder.as_mut())?;
-                f.transform_expr(value.as_mut())?;
+                let mut r = f.transform_expr(builder.as_mut())?;
+                r |= f.transform_expr(value.as_mut())?;
+                r
             }
-            Expr::Lambda(lambda) => {
-                f.transform_lambda(lambda)?;
-            }
+            Expr::Lambda(lambda) => f.transform_lambda(lambda)?,
             Expr::NewVector(NewVector { items, .. }) => {
+                let mut r = false;
                 for it in items {
-                    f.transform_expr(it)?;
+                    r |= f.transform_expr(it)?;
                 }
+                r
             }
-            Expr::Eval(Eval(value)) => {
-                f.transform_expr(value.as_mut())?;
-            }
+            Expr::Eval(Eval(value)) => f.transform_expr(value.as_mut())?,
             // below expressions do not have children
             Expr::Symbol(_)
             | Expr::Literal(_)
@@ -128,9 +151,9 @@ impl Expr {
             | Expr::NewMerger(_)
             | Expr::NewDictMerger(_)
             | Expr::NewGroupMerger(_)
-            | Expr::NewVecMerger(_) => (),
+            | Expr::NewVecMerger(_) => false,
         };
-        Ok(())
+        Ok(r)
     }
 
     pub fn traverse_children<F>(&self, f: &mut F) -> Result<()>

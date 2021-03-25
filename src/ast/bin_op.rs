@@ -67,6 +67,14 @@ impl BinOp {
         }
     }
 
+    pub fn rem(left: Expr, right: Expr) -> Self {
+        BinOp {
+            op_ty: BinOpType::Modulo,
+            left: Box::new(left),
+            right: Box::new(right),
+        }
+    }
+
     pub fn eq(left: Expr, right: Expr) -> Self {
         BinOp {
             op_ty: BinOpType::Equal,

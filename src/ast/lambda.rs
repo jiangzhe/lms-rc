@@ -30,7 +30,10 @@ pub struct Lambda {
 
 impl TypeInference for Lambda {
     fn ty(&self) -> Type {
-        todo!()
+        Type::Lambda(LambdaType {
+            args_ty: self.params.iter().map(|sym| sym.ty.clone()).collect(),
+            ret_ty: Box::new(self.body.ty()),
+        })
     }
 }
 

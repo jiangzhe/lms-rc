@@ -3,7 +3,7 @@ use crate::ast::{Expr, ExprTransformer, Lambda};
 use crate::Result;
 use std::collections::HashMap;
 
-pub fn uniquify(expr: &mut Expr) -> Result<()> {
+pub fn uniquify(expr: &mut Expr) -> Result<bool> {
     let mut su = Uniquifier::new();
     su.transform_expr(expr)
 }
@@ -14,25 +14,22 @@ struct Uniquifier {
 }
 
 impl ExprTransformer for Uniquifier {
-    fn transform_expr(&mut self, expr: &mut Expr) -> Result<()> {
+    fn transform_expr(&mut self, expr: &mut Expr) -> Result<bool> {
         match expr {
             Expr::Symbol(sym) => {
                 // match and rename the symbol
                 *sym = self.get(sym)?;
+                Ok(true)
             }
-            other => {
-                other.apply_children(self)?;
-            }
+            other => other.apply_children(self),
         }
-        Ok(())
     }
 
-    fn transform_lambda(&mut self, lambda: &mut Lambda) -> Result<()> {
+    fn transform_lambda(&mut self, lambda: &mut Lambda) -> Result<bool> {
         let Lambda {
             params,
             ref mut body,
         } = lambda;
-
         let orig_params = params.clone();
         for param in params {
             self.push(param);
@@ -43,7 +40,7 @@ impl ExprTransformer for Uniquifier {
         for param in orig_params.iter().rev() {
             self.pop(param)?;
         }
-        Ok(())
+        Ok(true)
     }
 }
 

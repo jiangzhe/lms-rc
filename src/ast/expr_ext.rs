@@ -4,14 +4,14 @@ use crate::Result;
 /// ExprTransformer defines transformation on type Expr.
 pub trait ExprTransformer {
     /// Transform given expression
-    fn transform_expr(&mut self, expr: &mut Expr) -> Result<()>;
+    fn transform_expr(&mut self, expr: &mut Expr) -> Result<bool>;
 
     /// Transform lambda
     ///
     /// Lambda differs from other expression is that it contains its own scoped symbols.
     /// The implementation should be in sync with transform_expr:
     /// transform_expr() should call transform_lambda if Lambda matched.
-    fn transform_lambda(&mut self, lambda: &mut Lambda) -> Result<()>;
+    fn transform_lambda(&mut self, lambda: &mut Lambda) -> Result<bool>;
 }
 
 /// ExprVisitor defines visitor on Expr.

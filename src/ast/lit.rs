@@ -80,7 +80,7 @@ impl Literal {
         }
     }
 
-    pub fn apply_bin_op(&self, other: &Self, op_ty: BinOpType) -> Result<Self> {
+    pub fn apply_bin_op(&self, other: &Self, op_ty: &BinOpType) -> Result<Self> {
         if self.ty() != other.ty() {
             return Err(compile_err!(
                 "incompatible types [{}, {}] for binary operation {}",
