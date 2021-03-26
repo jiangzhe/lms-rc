@@ -55,7 +55,7 @@ pub use lit::Literal;
 pub use lookup::Lookup;
 pub use merge::Merge;
 pub use pfor::For;
-pub use tuple::TupleType;
+pub use tuple::{NewTuple, TupleType};
 pub use ty::{Bool, BuilderType, Str, Type, TypeInference, F32, F64, I32, I64, U32, U64, U8};
 pub use unary_op::{UnaryOp, UnaryOpType};
 pub use var::Var;

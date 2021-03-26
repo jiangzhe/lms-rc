@@ -165,8 +165,8 @@ macro_rules! try_bitop_for_num_lit {
 }
 
 macro_rules! impl_arith_for_var_num {
-    ($opty:ty, $opgty:ty, $tty:ty, $builtinty:ty, $opf:ident, $op:tt, $asf:ident, $litf:ident, $exprf:ident, $binopf:path) => {
-        impl $opty for Var<$tty> {
+    ($opty:ty, $oplty:ty, $oprty:ty, $vty:ty, $builtinty:ty, $opf:ident, $op:tt, $asf:ident, $litf:ident, $exprf:ident, $binopf:path) => {
+        impl $opty for $vty {
             type Output = Self;
 
             fn $opf(self, other: Self) -> Self {
@@ -182,7 +182,24 @@ macro_rules! impl_arith_for_var_num {
             }
         }
 
-        impl $opgty for Var<$tty> {
+        impl $oplty for $builtinty {
+            type Output = $vty;
+
+            fn $opf(self, other: $vty) -> $vty {
+                match other.expr {
+                    Expr::Literal(v1) => {
+                        let v = self $op v1.$asf().unwrap();
+                        Var::$litf(v)
+                    }
+                    v1 => {
+                        let v0 = Var::$litf(self);
+                        Var::$exprf(Expr::BinOp($binopf(v0.expr, v1)))
+                    }
+                }
+            }
+        }
+
+        impl $oprty for $vty {
             type Output = Self;
 
             fn $opf(self, other: $builtinty) -> Self {

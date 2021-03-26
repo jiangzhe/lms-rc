@@ -141,47 +141,47 @@ impl_num_var!(I64, i64, lit_i64, expr_i64, is_i64);
 impl_num_var!(F32, f32, lit_f32, expr_f32, is_f32);
 impl_num_var!(F64, f64, lit_f64, expr_f64, is_f64);
 
-impl_arith_for_var_num!(Add, Add<u8>, U8, u8, add, +, as_u8, lit_u8, expr_u8, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<u8>, U8, u8, sub, -, as_u8, lit_u8, expr_u8, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<u8>, U8, u8, mul, *, as_u8, lit_u8, expr_u8, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<u8>, U8, u8, div, /, as_u8, lit_u8, expr_u8, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<u8>, U8, u8, rem, %, as_u8, lit_u8, expr_u8, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<U8>>, Add<u8>, Var<U8>, u8, add, +, as_u8, lit_u8, expr_u8, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<U8>>, Sub<u8>, Var<U8>, u8, sub, -, as_u8, lit_u8, expr_u8, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<U8>>, Mul<u8>, Var<U8>, u8, mul, *, as_u8, lit_u8, expr_u8, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<U8>>, Div<u8>, Var<U8>, u8, div, /, as_u8, lit_u8, expr_u8, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<U8>>, Rem<u8>, Var<U8>, u8, rem, %, as_u8, lit_u8, expr_u8, BinOp::rem);
 
-impl_arith_for_var_num!(Add, Add<u32>, U32, u32, add, +, as_u32, lit_u32, expr_u32, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<u32>, U32, u32, sub, -, as_u32, lit_u32, expr_u32, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<u32>, U32, u32, mul, *, as_u32, lit_u32, expr_u32, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<u32>, U32, u32, div, /, as_u32, lit_u32, expr_u32, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<u32>, U32, u32, rem, /, as_u32, lit_u32, expr_u32, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<U32>>, Add<u32>, Var<U32>, u32, add, +, as_u32, lit_u32, expr_u32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<U32>>, Sub<u32>, Var<U32>, u32, sub, -, as_u32, lit_u32, expr_u32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<U32>>, Mul<u32>, Var<U32>, u32, mul, *, as_u32, lit_u32, expr_u32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<U32>>, Div<u32>, Var<U32>, u32, div, /, as_u32, lit_u32, expr_u32, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<U32>>, Rem<u32>, Var<U32>, u32, rem, /, as_u32, lit_u32, expr_u32, BinOp::rem);
 
-impl_arith_for_var_num!(Add, Add<i32>, I32, i32, add, +, as_i32, lit_i32, expr_i32, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<i32>, I32, i32, sub, -, as_i32, lit_i32, expr_i32, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<i32>, I32, i32, mul, *, as_i32, lit_i32, expr_i32, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<i32>, I32, i32, div, /, as_i32, lit_i32, expr_i32, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<i32>, I32, i32, rem, /, as_i32, lit_i32, expr_i32, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<I32>>, Add<i32>, Var<I32>, i32, add, +, as_i32, lit_i32, expr_i32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<I32>>, Sub<i32>, Var<I32>, i32, sub, -, as_i32, lit_i32, expr_i32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<I32>>, Mul<i32>, Var<I32>, i32, mul, *, as_i32, lit_i32, expr_i32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<I32>>, Div<i32>, Var<I32>, i32, div, /, as_i32, lit_i32, expr_i32, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<I32>>, Rem<i32>, Var<I32>, i32, rem, /, as_i32, lit_i32, expr_i32, BinOp::rem);
 
-impl_arith_for_var_num!(Add, Add<u64>, U64, u64, add, +, as_u64, lit_u64, expr_u64, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<u64>, U64, u64, sub, -, as_u64, lit_u64, expr_u64, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<u64>, U64, u64, mul, *, as_u64, lit_u64, expr_u64, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<u64>, U64, u64, div, /, as_u64, lit_u64, expr_u64, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<u64>, U64, u64, rem, /, as_u64, lit_u64, expr_u64, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<U64>>, Add<u64>, Var<U64>, u64, add, +, as_u64, lit_u64, expr_u64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<U64>>, Sub<u64>, Var<U64>, u64, sub, -, as_u64, lit_u64, expr_u64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<U64>>, Mul<u64>, Var<U64>, u64, mul, *, as_u64, lit_u64, expr_u64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<U64>>, Div<u64>, Var<U64>, u64, div, /, as_u64, lit_u64, expr_u64, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<U64>>, Rem<u64>, Var<U64>, u64, rem, /, as_u64, lit_u64, expr_u64, BinOp::rem);
 
-impl_arith_for_var_num!(Add, Add<i64>, I64, i64, add, +, as_i64, lit_i64, expr_i64, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<i64>, I64, i64, sub, -, as_i64, lit_i64, expr_i64, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<i64>, I64, i64, mul, *, as_i64, lit_i64, expr_i64, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<i64>, I64, i64, div, /, as_i64, lit_i64, expr_i64, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<i64>, I64, i64, rem, /, as_i64, lit_i64, expr_i64, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<I64>>, Add<i64>, Var<I64>, i64, add, +, as_i64, lit_i64, expr_i64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<I64>>, Sub<i64>, Var<I64>, i64, sub, -, as_i64, lit_i64, expr_i64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<I64>>, Mul<i64>, Var<I64>, i64, mul, *, as_i64, lit_i64, expr_i64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<I64>>, Div<i64>, Var<I64>, i64, div, /, as_i64, lit_i64, expr_i64, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<I64>>, Rem<i64>, Var<I64>, i64, rem, /, as_i64, lit_i64, expr_i64, BinOp::rem);
 
-impl_arith_for_var_num!(Add, Add<f32>, F32, f32, add, +, as_f32, lit_f32, expr_f32, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<f32>, F32, f32, sub, -, as_f32, lit_f32, expr_f32, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<f32>, F32, f32, mul, *, as_f32, lit_f32, expr_f32, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<f32>, F32, f32, div, /, as_f32, lit_f32, expr_f32, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<f32>, F32, f32, rem, /, as_f32, lit_f32, expr_f32, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<F32>>, Add<f32>, Var<F32>, f32, add, +, as_f32, lit_f32, expr_f32, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<F32>>, Sub<f32>, Var<F32>, f32, sub, -, as_f32, lit_f32, expr_f32, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<F32>>, Mul<f32>, Var<F32>, f32, mul, *, as_f32, lit_f32, expr_f32, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<F32>>, Div<f32>, Var<F32>, f32, div, /, as_f32, lit_f32, expr_f32, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<F32>>, Rem<f32>, Var<F32>, f32, rem, /, as_f32, lit_f32, expr_f32, BinOp::rem);
 
-impl_arith_for_var_num!(Add, Add<f64>, F64, f64, add, +, as_f64, lit_f64, expr_f64, BinOp::add);
-impl_arith_for_var_num!(Sub, Sub<f64>, F64, f64, sub, -, as_f64, lit_f64, expr_f64, BinOp::sub);
-impl_arith_for_var_num!(Mul, Mul<f64>, F64, f64, mul, *, as_f64, lit_f64, expr_f64, BinOp::mul);
-impl_arith_for_var_num!(Div, Div<f64>, F64, f64, div, /, as_f64, lit_f64, expr_f64, BinOp::div);
-impl_arith_for_var_num!(Rem, Rem<f64>, F64, f64, rem, /, as_f64, lit_f64, expr_f64, BinOp::rem);
+impl_arith_for_var_num!(Add, Add<Var<F64>>, Add<f64>, Var<F64>, f64, add, +, as_f64, lit_f64, expr_f64, BinOp::add);
+impl_arith_for_var_num!(Sub, Sub<Var<F64>>, Sub<f64>, Var<F64>, f64, sub, -, as_f64, lit_f64, expr_f64, BinOp::sub);
+impl_arith_for_var_num!(Mul, Mul<Var<F64>>, Mul<f64>, Var<F64>, f64, mul, *, as_f64, lit_f64, expr_f64, BinOp::mul);
+impl_arith_for_var_num!(Div, Div<Var<F64>>, Div<f64>, Var<F64>, f64, div, /, as_f64, lit_f64, expr_f64, BinOp::div);
+impl_arith_for_var_num!(Rem, Rem<Var<F64>>, Rem<f64>, Var<F64>, f64, rem, /, as_f64, lit_f64, expr_f64, BinOp::rem);
 
 impl Neg for Var<I32> {
     type Output = Self;

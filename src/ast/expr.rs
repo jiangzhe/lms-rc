@@ -37,6 +37,8 @@ pub enum Expr {
     NewVector(NewVector),
     /// Construct a new dictionary.
     NewDict(NewDict),
+    /// Construct a new tuple.
+    NewTuple(NewTuple),
     /// Construct a new appender.
     NewAppender(NewAppender),
     /// Construct a new merger.
@@ -142,6 +144,13 @@ impl Expr {
                 }
                 r
             }
+            Expr::NewTuple(NewTuple(items)) => {
+                let mut r = false;
+                for it in items {
+                    r |= f.transform_expr(it)?;
+                }
+                r
+            }
             Expr::Eval(Eval(value)) => f.transform_expr(value.as_mut())?,
             // below expressions do not have children
             Expr::Symbol(_)
@@ -218,6 +227,11 @@ impl Expr {
                     f.visit_expr(it)?;
                 }
             }
+            Expr::NewTuple(NewTuple(items)) => {
+                for it in items {
+                    f.visit_expr(it)?;
+                }
+            }
             Expr::Eval(Eval(value)) => {
                 f.visit_expr(value.as_ref())?;
             }
@@ -253,6 +267,7 @@ impl std::fmt::Display for Expr {
             Expr::Lambda(lmd) => lmd.fmt(f),
             Expr::NewVector(nv) => nv.fmt(f),
             Expr::NewDict(nd) => nd.fmt(f),
+            Expr::NewTuple(tp) => tp.fmt(f),
             Expr::NewAppender(na) => na.fmt(f),
             Expr::NewMerger(nm) => nm.fmt(f),
             Expr::NewDictMerger(ndm) => ndm.fmt(f),

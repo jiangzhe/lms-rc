@@ -3,6 +3,10 @@ use crate::ast::*;
 use crate::Result;
 use std::collections::HashMap;
 
+pub fn simplify(expr: &mut Expr, syms: HashMap<Symbol, Literal>) -> Result<bool> {
+    Simplify::with_syms(syms).transform_expr(expr)
+}
+
 struct Simplify {
     syms: HashMap<Symbol, Literal>,
 }
@@ -95,5 +99,19 @@ mod tests {
             .transform_expr(&mut v2.expr)
             .unwrap();
         assert_eq!(2, v2.expr.as_lit().unwrap().as_i32().unwrap());
+
+        let mut v3 = 1 + Var::new_symbol("a", I32) + 1;
+        Simplify::new()
+            .with_sym(Symbol::named("a", I32), 1.into())
+            .transform_expr(&mut v3.expr)
+            .unwrap();
+        assert_eq!(3, v3.expr.as_lit().unwrap().as_i32().unwrap());
+
+        let mut v4 = Var::lit_i32(1);
+        Simplify::new()
+            .with_sym(Symbol::named("a", I32), 1.into())
+            .transform_expr(&mut v4.expr)
+            .unwrap();
+        assert_eq!(1, v4.expr.as_lit().unwrap().as_i32().unwrap());
     }
 }
