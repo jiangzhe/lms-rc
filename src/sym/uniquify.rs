@@ -103,12 +103,12 @@ mod tests {
 
     #[test]
     fn test_uniquify() {
-        let v2 = Var::merger(I32, BinOpType::Max);
-        let v3 = Var::vector(vec![1, 2, 3]);
+        let v2 = Var::new_merger(I32, BinOpType::Max);
+        let v3 = Var::new_vector(vec![1, 2, 3]);
         let v4 = v2
             .pfor(v3.clone(), |b, _, e: Var<i32>| b.merge(e))
             .eval(I32);
-        let v5 = Var::merger(I32, BinOpType::Min);
+        let v5 = Var::new_merger(I32, BinOpType::Min);
         let v6 = v5.pfor(v3, |b, _, e: Var<i32>| b.merge(e)).eval(I32);
         let mut v7: Expr = (v4 + v6).into();
         println!("{}", v7);

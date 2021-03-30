@@ -1,4 +1,4 @@
-use super::{BinOpType, Bool, Expr, Str, Type, TypeInference, F32, F64, I32, I64, U32, U64, U8};
+use super::*;
 use crate::Result;
 use std::cmp::Ordering;
 
@@ -83,7 +83,7 @@ impl Literal {
     pub fn apply_bin_op(&self, other: &Self, op_ty: &BinOpType) -> Result<Self> {
         if self.ty() != other.ty() {
             return Err(compile_err!(
-                "incompatible types [{}, {}] for binary operation {}",
+                "incompatible types [{}, {}] in {} operation",
                 self.ty(),
                 other.ty(),
                 op_ty
@@ -123,6 +123,37 @@ impl Literal {
             BinOpType::Max => try_max(self, other),
             BinOpType::Min => try_min(self, other),
         }
+    }
+
+    pub fn apply_unary_op(&self, op_ty: &UnaryOpType) -> Result<Self> {
+        let r = match op_ty {
+            UnaryOpType::Not => {
+                let r = self.as_bool().ok_or_else(|| {
+                    compile_err!("incompabile type[{}] in Not operation", self.ty())
+                })?;
+                Literal::Bool(!r)
+            }
+            UnaryOpType::Neg => match self {
+                Literal::I32(v) => Literal::I32(-*v),
+                Literal::I64(v) => Literal::I64(-*v),
+                Literal::F32(v) => {
+                    let f = f32::from_bits(*v);
+                    (-f).into()
+                }
+                Literal::F64(v) => {
+                    let f = f64::from_bits(*v);
+                    (-f).into()
+                }
+                _ => {
+                    return Err(compile_err!(
+                        "incompabile type[{}] in Neg operation",
+                        self.ty()
+                    ))
+                }
+            },
+            _ => return Err(compile_err!("unimplemented {} operation", op_ty)),
+        };
+        Ok(r)
     }
 }
 

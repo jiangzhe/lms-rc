@@ -42,7 +42,7 @@ pub use builder::{
     NewGroupMerger, NewMerger, NewVecMerger, VecMergerType,
 };
 pub use cast::Cast;
-pub use dict::{DictType, NewDict};
+pub use dict::{Dict, DictType};
 pub use eval::Eval;
 pub use expr::Expr;
 pub use expr_ext::{ExprTransformer, ExprVisitor};
@@ -55,8 +55,8 @@ pub use lit::Literal;
 pub use lookup::Lookup;
 pub use merge::Merge;
 pub use pfor::For;
-pub use tuple::{NewTuple, TupleType};
+pub use tuple::{Tuple, TupleType};
 pub use ty::{Bool, BuilderType, Str, Type, TypeInference, F32, F64, I32, I64, U32, U64, U8};
 pub use unary_op::{UnaryOp, UnaryOpType};
 pub use var::Var;
-pub use vector::{NewVector, VectorType};
+pub use vector::{Vector, VectorType};

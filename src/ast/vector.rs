@@ -16,13 +16,13 @@ impl std::fmt::Display for VectorType {
 
 /// A new Vector.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct NewVector {
+pub struct Vector {
     // item_ty is necessary if vector is empty.
     pub(crate) item_ty: Type,
     pub(crate) items: Vec<Expr>,
 }
 
-impl TypeInference for NewVector {
+impl TypeInference for Vector {
     fn ty(&self) -> Type {
         Type::Vector(VectorType {
             item_ty: Box::new(self.item_ty.clone()),
@@ -30,7 +30,7 @@ impl TypeInference for NewVector {
     }
 }
 
-impl std::fmt::Display for NewVector {
+impl std::fmt::Display for Vector {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use std::fmt::Write;
         write!(f, "NewVector<{}>", self.item_ty)?;

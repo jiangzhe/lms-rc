@@ -31,6 +31,35 @@ impl<T> Var<T> {
         }
     }
 
+    pub fn zip<U>(self, other: Var<U>) -> Var<TupleType> {
+        match (self.expr.is_tuple(), other.expr.is_tuple()) {
+            (true, true) => {
+                let mut tp0 = self.expr.to_tuple();
+                let tp1 = other.expr.to_tuple();
+                tp0.0.extend(tp1.0);
+                Var::new(Expr::Tuple(tp0))
+            }
+            (true, false) => {
+                let mut tp0 = self.expr.to_tuple();
+                tp0.0.push(other.expr);
+                Var::new(Expr::Tuple(tp0))
+            }
+            (false, true) => {
+                let tp1 = other.expr.to_tuple();
+                let mut exprs = Vec::with_capacity(tp1.0.len() + 1);
+                exprs.push(self.expr);
+                exprs.extend(tp1.0);
+                Var::new(Expr::Tuple(Tuple(exprs)))
+            }
+            (false, false) => {
+                let mut exprs = Vec::with_capacity(2);
+                exprs.push(self.expr);
+                exprs.push(other.expr);
+                Var::new(Expr::Tuple(Tuple(exprs)))
+            }
+        }
+    }
+
     /// Clone a symbol.
     ///
     /// The type should be consistent with generic
@@ -215,6 +244,44 @@ impl Neg for Var<I64> {
     }
 }
 
+impl Neg for Var<F32> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        match self.expr {
+            Expr::Literal(Literal::F32(v)) => {
+                let f = f32::from_bits(v);
+                Var::lit_f32(-f)
+            }
+            Expr::UnaryOp(UnaryOp {
+                op_ty: UnaryOpType::Neg,
+                value,
+                ..
+            }) => Var::expr_f32(*value),
+            other => Var::expr_f32(Expr::UnaryOp(UnaryOp::neg(other))),
+        }
+    }
+}
+
+impl Neg for Var<F64> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        match self.expr {
+            Expr::Literal(Literal::F64(v)) => {
+                let f = f64::from_bits(v);
+                Var::lit_f64(-f)
+            }
+            Expr::UnaryOp(UnaryOp {
+                op_ty: UnaryOpType::Neg,
+                value,
+                ..
+            }) => Var::expr_f64(*value),
+            other => Var::expr_f64(Expr::UnaryOp(UnaryOp::neg(other))),
+        }
+    }
+}
+
 impl<B: BuilderType> Var<B> {
     /// pfor represents the parallel for expression of builder operation.
     /// The provided lambda will be called in parallel with non-overlapping
@@ -290,7 +357,7 @@ impl Var<AppenderType> {
 
 impl Var<MergerType> {
     /// Create a new var of merger with given item type and operator.
-    pub fn merger<T: Into<Type>>(item_ty: T, op_ty: BinOpType) -> Self {
+    pub fn new_merger<T: Into<Type>>(item_ty: T, op_ty: BinOpType) -> Self {
         Var::new(Expr::NewMerger(NewMerger {
             item_ty: item_ty.into(),
             op_ty,
@@ -427,7 +494,7 @@ impl Var<VecMergerType> {
 /// Implements methods on vector var.
 impl Var<VectorType> {
     /// Create a new var of vector with given items
-    pub fn vector<T>(items: Vec<T>) -> Self
+    pub fn new_vector<T>(items: Vec<T>) -> Self
     where
         T: Into<Expr>,
     {
@@ -437,18 +504,35 @@ impl Var<VectorType> {
         );
         let items: Vec<Expr> = items.into_iter().map(Into::into).collect();
         let item_ty: Type = items[0].ty();
-        Var::new(Expr::NewVector(NewVector { item_ty, items }))
+        Var::new(Expr::Vector(Vector { item_ty, items }))
     }
 }
 
-/// Marker trait for var with builder type
-pub trait BuilderVar {
-    fn expr(self) -> Expr;
-}
+impl Var<TupleType> {
+    pub fn new_tuple(items: Vec<Expr>) -> Self {
+        assert!(
+            !items.is_empty(),
+            "Empty list of items not allowed in creating new tuple"
+        );
+        Var::new(Expr::Tuple(Tuple(items)))
+    }
 
-impl BuilderVar for Var<AppenderType> {
-    fn expr(self) -> Expr {
-        self.expr
+    pub fn get<T>(&self, index: u32, ty: T) -> Var<T>
+    where
+        T: Into<Type>,
+    {
+        let ty: Type = ty.into();
+        let get_field = GetField {
+            tuple: Box::new(self.expr.clone()),
+            index,
+        };
+        assert_eq!(
+            ty,
+            get_field.ty(),
+            "Imcompatible type[{}] in get_field opertaion",
+            ty
+        );
+        Var::new(Expr::GetField(get_field))
     }
 }
 
@@ -478,7 +562,7 @@ mod tests {
 
     #[test]
     fn test_var_merger() {
-        let m1 = Var::merger(I32, BinOpType::Add);
+        let m1 = Var::new_merger(I32, BinOpType::Add);
         let m2 = m1.merge(1);
         let m3 = m2.merge(2);
         let m4 = m3.merge(3);
@@ -487,9 +571,21 @@ mod tests {
 
     #[test]
     fn test_var_vector() {
-        let v1 = Var::vector(vec![1, 2, 3]);
-        let m1 = Var::merger(I32, BinOpType::Add);
+        let v1 = Var::new_vector(vec![1, 2, 3]);
+        let m1 = Var::new_merger(I32, BinOpType::Add);
         let m2 = m1.pfor(v1, |b, _i, e: Var<i32>| b.merge(e));
         println!("{}", m2.expr);
+    }
+
+    #[test]
+    fn test_var_tuple() {
+        let v1 = Var::new_tuple(vec![1.into(), true.into()]);
+        let v2 = v1.get(0, I32);
+        println!("{}", v2.expr);
+
+        let v3 = Var::lit_i32(1);
+        let v4 = Var::lit_bool(true);
+        let v5 = v3.zip(v4);
+        println!("{}", v5.expr);
     }
 }

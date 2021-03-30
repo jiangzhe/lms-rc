@@ -34,11 +34,11 @@ pub enum Expr {
     /// An expression representing a function.
     Lambda(Lambda),
     /// Construct a new vector.
-    NewVector(NewVector),
+    Vector(Vector),
     /// Construct a new dictionary.
-    NewDict(NewDict),
+    Dict(Dict),
     /// Construct a new tuple.
-    NewTuple(NewTuple),
+    Tuple(Tuple),
     /// Construct a new appender.
     NewAppender(NewAppender),
     /// Construct a new merger.
@@ -82,6 +82,27 @@ impl Expr {
         }
     }
 
+    pub fn as_tuple(&self) -> Option<&Tuple> {
+        match self {
+            Expr::Tuple(tp) => Some(tp),
+            _ => None,
+        }
+    }
+
+    pub fn to_tuple(self) -> Tuple {
+        match self {
+            Expr::Tuple(tp) => tp,
+            _ => panic!("incompatible type[{}] cast to tuple", self.ty()),
+        }
+    }
+
+    pub fn is_tuple(&self) -> bool {
+        match self {
+            Expr::Tuple(_) => true,
+            _ => false,
+        }
+    }
+
     /// Apply given transformer to all children.
     ///
     /// If returns true, the transformation take effect on any of child.
@@ -101,8 +122,8 @@ impl Expr {
             Expr::Cast(Cast { value, .. }) => f.transform_expr(value.as_mut())?,
             Expr::GetField(GetField { tuple, .. }) => f.transform_expr(tuple.as_mut())?,
             Expr::Length(Length(value)) => f.transform_expr(value.as_mut())?,
-            Expr::Lookup(Lookup { data, index }) => {
-                let mut r = f.transform_expr(data.as_mut())?;
+            Expr::Lookup(Lookup { dict, index }) => {
+                let mut r = f.transform_expr(dict.as_mut())?;
                 r |= f.transform_expr(index.as_mut())?;
                 r
             }
@@ -137,14 +158,14 @@ impl Expr {
                 r
             }
             Expr::Lambda(lambda) => f.transform_lambda(lambda)?,
-            Expr::NewVector(NewVector { items, .. }) => {
+            Expr::Vector(Vector { items, .. }) => {
                 let mut r = false;
                 for it in items {
                     r |= f.transform_expr(it)?;
                 }
                 r
             }
-            Expr::NewTuple(NewTuple(items)) => {
+            Expr::Tuple(Tuple(items)) => {
                 let mut r = false;
                 for it in items {
                     r |= f.transform_expr(it)?;
@@ -155,7 +176,7 @@ impl Expr {
             // below expressions do not have children
             Expr::Symbol(_)
             | Expr::Literal(_)
-            | Expr::NewDict(_)
+            | Expr::Dict(_)
             | Expr::NewAppender(_)
             | Expr::NewMerger(_)
             | Expr::NewDictMerger(_)
@@ -189,8 +210,8 @@ impl Expr {
             Expr::Length(Length(value)) => {
                 f.visit_expr(value.as_ref())?;
             }
-            Expr::Lookup(Lookup { data, index }) => {
-                f.visit_expr(data.as_ref())?;
+            Expr::Lookup(Lookup { dict, index }) => {
+                f.visit_expr(dict.as_ref())?;
                 f.visit_expr(index.as_ref())?;
             }
             Expr::IfThenElse(IfThenElse { i, t, e }) => {
@@ -222,12 +243,12 @@ impl Expr {
             Expr::Lambda(lambda) => {
                 f.visit_lambda(lambda)?;
             }
-            Expr::NewVector(NewVector { items, .. }) => {
+            Expr::Vector(Vector { items, .. }) => {
                 for it in items {
                     f.visit_expr(it)?;
                 }
             }
-            Expr::NewTuple(NewTuple(items)) => {
+            Expr::Tuple(Tuple(items)) => {
                 for it in items {
                     f.visit_expr(it)?;
                 }
@@ -238,7 +259,7 @@ impl Expr {
             // below expressions do not have children
             Expr::Symbol(_)
             | Expr::Literal(_)
-            | Expr::NewDict(_)
+            | Expr::Dict(_)
             | Expr::NewAppender(_)
             | Expr::NewMerger(_)
             | Expr::NewDictMerger(_)
@@ -265,9 +286,9 @@ impl std::fmt::Display for Expr {
             Expr::For(fr) => fr.fmt(f),
             Expr::Merge(mg) => mg.fmt(f),
             Expr::Lambda(lmd) => lmd.fmt(f),
-            Expr::NewVector(nv) => nv.fmt(f),
-            Expr::NewDict(nd) => nd.fmt(f),
-            Expr::NewTuple(tp) => tp.fmt(f),
+            Expr::Vector(nv) => nv.fmt(f),
+            Expr::Dict(nd) => nd.fmt(f),
+            Expr::Tuple(tp) => tp.fmt(f),
             Expr::NewAppender(na) => na.fmt(f),
             Expr::NewMerger(nm) => nm.fmt(f),
             Expr::NewDictMerger(ndm) => ndm.fmt(f),

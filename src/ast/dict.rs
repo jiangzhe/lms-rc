@@ -17,12 +17,12 @@ impl std::fmt::Display for DictType {
 
 /// A new Dictionary.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct NewDict {
+pub struct Dict {
     pub(crate) key_ty: Type,
     pub(crate) value_ty: Type,
 }
 
-impl TypeInference for NewDict {
+impl TypeInference for Dict {
     fn ty(&self) -> Type {
         Type::Dict(DictType {
             key_ty: Box::new(self.key_ty.clone()),
@@ -31,7 +31,7 @@ impl TypeInference for NewDict {
     }
 }
 
-impl std::fmt::Display for NewDict {
+impl std::fmt::Display for Dict {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "NewDict<{}, {}>", self.key_ty, self.value_ty)
     }

@@ -3,14 +3,13 @@ use super::{Expr, Type, TypeInference};
 /// Get value from tuple by given index.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct GetField {
-    pub(crate) ty: Type,
     pub(crate) tuple: Box<Expr>,
     pub(crate) index: u32,
 }
 
 impl TypeInference for GetField {
     fn ty(&self) -> Type {
-        self.ty.clone()
+        self.tuple.as_tuple().unwrap().0[self.index as usize].ty()
     }
 }
 

@@ -18,15 +18,15 @@ impl std::fmt::Display for TupleType {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct NewTuple(pub(crate) Vec<Expr>);
+pub struct Tuple(pub(crate) Vec<Expr>);
 
-impl TypeInference for NewTuple {
+impl TypeInference for Tuple {
     fn ty(&self) -> Type {
         Type::Tuple(TupleType(self.0.iter().map(|e| e.ty()).collect()))
     }
 }
 
-impl std::fmt::Display for NewTuple {
+impl std::fmt::Display for Tuple {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use std::fmt::Write;
         f.write_char('(')?;
