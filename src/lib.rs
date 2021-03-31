@@ -6,6 +6,7 @@
 #[macro_use]
 pub mod error;
 pub mod ast;
+pub mod codegen;
 pub mod sir;
 pub mod stage;
 pub mod sym;

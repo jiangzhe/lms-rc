@@ -227,3 +227,13 @@ macro_rules! derive_display {
         }
     };
 }
+
+macro_rules! impl_scalar_type {
+    ($ty:ty, $lit:literal) => {
+        impl ScalarType for $ty {
+            fn scalar_repr(&self) -> &'static str {
+                $lit
+            }
+        }
+    };
+}
